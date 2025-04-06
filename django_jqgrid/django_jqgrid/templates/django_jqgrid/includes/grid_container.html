@@ -1,0 +1,18 @@
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ title }}</h3>
+        <div class="card-tools">
+            <div id="{{ grid_id }}_toolbar" class="btn-group">
+                <!-- Toolbar buttons will be added here -->
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="{{ grid_id }}_gridMessages" class="alert" style="display: none;"></div>
+        <table id="{{ grid_id }}" class="jqGrid" 
+               data-url="/api/{{ app_name }}/{{ model_name }}/" 
+               data-app-name="{{ app_name }}" 
+               data-table-name="{{ model_name }}"></table>
+        <div id="{{ grid_id }}_pager"></div>
+    </div>
+</div>
