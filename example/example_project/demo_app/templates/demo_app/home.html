@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Django jqGrid Demo{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Django jqGrid Demo</h1>
+    <p class="lead">This example project demonstrates the features and capabilities of the django-jqgrid package.</p>
+    <hr class="my-4">
+    <p>Explore different grid implementations with various field types, relationships, and advanced features.</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <h3>{{ stats.employees }}</h3>
+                <p>Employees</p>
+                <a href="{% url 'demo_app:employee_grid' %}" class="btn btn-primary btn-sm">View Grid</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <h3>{{ stats.departments }}</h3>
+                <p>Departments</p>
+                <a href="{% url 'demo_app:department_grid' %}" class="btn btn-primary btn-sm">View Grid</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <h3>{{ stats.projects }}</h3>
+                <p>Projects</p>
+                <a href="{% url 'demo_app:project_grid' %}" class="btn btn-primary btn-sm">View Grid</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <h3>{{ stats.tasks }}</h3>
+                <p>Tasks</p>
+                <a href="{% url 'demo_app:task_grid' %}" class="btn btn-primary btn-sm">View Grid</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Overview -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h4>Key Features Demonstrated</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Basic Features</h5>
+                <ul>
+                    <li>Automatic grid generation from Django models</li>
+                    <li>CRUD operations (Create, Read, Update, Delete)</li>
+                    <li>Pagination and sorting</li>
+                    <li>Column search and filtering</li>
+                    <li>Multi-select functionality</li>
+                    <li>Responsive design</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5>Advanced Features</h5>
+                <ul>
+                    <li>Import/Export (Excel, CSV)</li>
+                    <li>Custom formatters and validators</li>
+                    <li>Foreign key and many-to-many relationships</li>
+                    <li>Column chooser</li>
+                    <li>Bulk operations</li>
+                    <li>Custom buttons and actions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Start Guide -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h4>Quick Start Guide</h4>
+    </div>
+    <div class="card-body">
+        <ol>
+            <li><strong>Explore Grids:</strong> Click on any of the grid links above to see jqGrid in action</li>
+            <li><strong>Try CRUD Operations:</strong> Add, edit, or delete records using the toolbar buttons</li>
+            <li><strong>Test Filtering:</strong> Use the search toolbar to filter data</li>
+            <li><strong>Import/Export:</strong> Try importing data from Excel or exporting grid data</li>
+            <li><strong>Admin Panel:</strong> Access the Django admin to manage data directly</li>
+        </ol>
+        
+        <h5 class="mt-3">Basic Usage in Templates</h5>
+        <pre class="bg-light p-3"><code>{% verbatim %}{% load jqgrid_tags %}
+
+<!-- Include CSS -->
+{% jqgrid_css %}
+
+<!-- Create a grid -->
+{% jqgrid "my_grid" "app_name" "model_name" "Grid Title" %}
+
+<!-- Include JavaScript -->
+{% jqgrid_js %}{% endverbatim %}</code></pre>
+    </div>
+</div>
+{% endblock %}

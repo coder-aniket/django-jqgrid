@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load jqgrid_tags %}
+
+{% block title %}{{ title }} - Django jqGrid Demo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>{{ title }}</h2>
+        <p class="text-muted">Examples of advanced jqGrid customizations and features.</p>
+        
+        <!-- Custom Formatters Example -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Grid with Custom Formatters</h5>
+            </div>
+            <div class="card-body">
+                {% jqgrid "employee_custom" "demo_app" "employee" "Employees with Custom Formatting" %}
+            </div>
+        </div>
+        
+        <!-- Multiple Grids Example -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Active Projects</h5>
+                    </div>
+                    <div class="card-body">
+                        {% jqgrid "active_projects" "demo_app" "project" "" include_import_export=False %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Pending Tasks</h5>
+                    </div>
+                    <div class="card-body">
+                        {% jqgrid "pending_tasks" "demo_app" "task" "" include_import_export=False %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Code Examples -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Advanced Usage Examples</h5>
+            </div>
+            <div class="card-body">
+                <h6>Custom Formatters</h6>
+                <pre class="bg-light p-3"><code>// Example: Custom salary formatter
+var customFormatters = {
+    salaryFormatter: function(cellvalue, options, rowObject) {
+        return '$' + parseFloat(cellvalue).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+};</code></pre>
+
+                <h6 class="mt-3">Custom Buttons</h6>
+                <pre class="bg-light p-3"><code>// Example: Add custom button
+var customButtons = {
+    emailButton: {
+        caption: "Send Email",
+        buttonicon: "fa-envelope",
+        onClickButton: function() {
+            var selectedRow = jQuery("#grid").jqGrid('getGridParam', 'selrow');
+            if (selectedRow) {
+                alert("Sending email to selected employee");
+            }
+        }
+    }
+};</code></pre>
+
+                <h6 class="mt-3">Event Handlers</h6>
+                <pre class="bg-light p-3"><code>// Example: Row selection handler
+function onSelectRow(rowid, status, e) {
+    console.log("Selected row: " + rowid);
+    // Custom logic here
+}
+
+// Example: Grid complete handler
+function onGridComplete() {
+    // Customize grid after loading
+    console.log("Grid loaded successfully");
+}</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Example of customizing the employee grid after initialization
+        setTimeout(function() {
+            // Add custom CSS to specific cells
+            $("#employee_custom").find("tr").each(function() {
+                var salary = $(this).find("td[aria-describedby='employee_custom_salary']").text();
+                if (parseFloat(salary) > 100000) {
+                    $(this).find("td[aria-describedby='employee_custom_salary']").css({
+                        'color': 'green',
+                        'font-weight': 'bold'
+                    });
+                }
+            });
+        }, 1000);
+        
+        // Filter active projects
+        setTimeout(function() {
+            $("#active_projects").jqGrid('setGridParam', {
+                postData: { filters: JSON.stringify({
+                    groupOp: "AND",
+                    rules: [{field: "is_active", op: "eq", data: "true"}]
+                })}
+            }).trigger("reloadGrid");
+        }, 500);
+        
+        // Filter pending tasks
+        setTimeout(function() {
+            $("#pending_tasks").jqGrid('setGridParam', {
+                postData: { filters: JSON.stringify({
+                    groupOp: "AND",
+                    rules: [{field: "status", op: "eq", data: "todo"}]
+                })}
+            }).trigger("reloadGrid");
+        }, 500);
+    });
+</script>
+{% endblock %}

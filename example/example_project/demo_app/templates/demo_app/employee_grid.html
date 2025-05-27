@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load jqgrid_tags %}
+
+{% block title %}{{ title }} - Django jqGrid Demo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>{{ title }}</h2>
+        <p class="text-muted">Demonstrates a complex model with various field types, foreign keys, and custom formatting.</p>
+        
+        <div class="card">
+            <div class="card-body">
+                <!-- Basic jqGrid implementation -->
+                {% jqgrid grid_id "demo_app" "employee" "Employee List" %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Features Demonstrated</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li><strong>Field Types:</strong> Text, Email, Choice fields, Dates, Numbers, Boolean</li>
+                    <li><strong>Relationships:</strong> Foreign Key to Department, Self-referential Manager field</li>
+                    <li><strong>Search:</strong> Try searching in different columns using the search toolbar</li>
+                    <li><strong>Sorting:</strong> Click column headers to sort</li>
+                    <li><strong>CRUD:</strong> Use toolbar buttons to Add, Edit, Delete records</li>
+                    <li><strong>Import/Export:</strong> Import from Excel or export current view</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Example of adding custom behavior after grid loads
+    $(document).ready(function() {
+        // You can add custom JavaScript here if needed
+        console.log('Employee grid loaded');
+    });
+</script>
+{% endblock %}

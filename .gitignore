@@ -189,6 +189,8 @@ example_project/db.sqlite3
 *.swp
 *.swo
 *~
+*.bat
+*.sh
 
 # Package files
 *.tar.gz

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load jqgrid_tags %}
+
+{% block title %}{{ title }} - Django jqGrid Demo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>{{ title }}</h2>
+        <p class="text-muted">Complex grid with priority levels, status tracking, and time estimates.</p>
+        
+        <div class="card">
+            <div class="card-body">
+                <!-- Task grid -->
+                {% jqgrid grid_id "demo_app" "task" "Task List" %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Advanced Usage</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Field Types</h6>
+                        <ul>
+                            <li>Choice fields (Priority, Status)</li>
+                            <li>Foreign Keys (Project, Assigned To)</li>
+                            <li>DateTime fields with time picker</li>
+                            <li>Float fields for hours tracking</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Try These</h6>
+                        <ul>
+                            <li>Sort by priority (high to low)</li>
+                            <li>Filter by status</li>
+                            <li>Search for specific projects</li>
+                            <li>Bulk update multiple tasks</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

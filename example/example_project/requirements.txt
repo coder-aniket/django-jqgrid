@@ -1,0 +1,4 @@
+Django>=3.2,<5.0
+djangorestframework>=3.12.0
+django-jsoneditor>=0.2.0
+# django-jqgrid is loaded from the parent directory in development

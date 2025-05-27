@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django-jqgrid"
-version = "1.0.0"
+version = "1.0.02"
 description = "A Django package for easy integration of jqGrid with automatic configuration"
 readme = "README.md"
 authors = [
@@ -147,7 +147,7 @@ exclude = '''
 '''
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "1.0.02"
 check_untyped_defs = true
 ignore_missing_imports = true
 warn_unused_ignores = true

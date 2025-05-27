@@ -45,9 +45,8 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-jqgrid',
-    version='1.0.01',
-    packages=['django_jqgrid'],
-    package_dir={'django_jqgrid': '.'},
+    version='1.0.03',
+    packages=find_packages(exclude=['example*', 'tests*']),
     include_package_data=True,
     license='MIT License',
     description='A Django package for easy integration of jqGrid with automatic configuration, comprehensive CRUD operations, and advanced features.',
@@ -87,6 +86,7 @@ setup(
     install_requires=[
         'Django>=3.0',
         'djangorestframework>=3.12',
+        'django-jsoneditor>=0.2.0',
     ],
     extras_require={
         'dev': [
