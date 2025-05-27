@@ -1,24 +1,24 @@
-# Django jqGrid
+# Django JQGrid
 
 [![PyPI version](https://badge.fury.io/py/django-jqgrid.svg)](https://badge.fury.io/py/django-jqgrid)
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-jqgrid.svg)](https://pypi.org/project/django-jqgrid/)
 [![Django Versions](https://img.shields.io/pypi/djversions/django-jqgrid.svg)](https://pypi.org/project/django-jqgrid/)
-[![License](https://img.shields.io/pypi/l/django-jqgrid.svg)](https://github.com/yourusername/django-jqgrid/blob/master/LICENSE)
+[![License](https://img.shields.io/pypi/l/django-jqgrid.svg)](https://github.com/coder-aniket/django-jqgrid/blob/master/LICENSE)
 
 A Django package for easy integration of jqGrid with automatic configuration, comprehensive CRUD operations, and advanced features. This package makes it trivial to add powerful, interactive data grids to your Django applications with minimal code.
 
 ## Features
 
-- =� **Auto-configuration** - Automatically discovers and configures Django models
-- =� **Full CRUD Support** - Create, Read, Update, Delete operations out of the box
-- = **Advanced Filtering** - Built-in search and filtering capabilities
-- =� **Import/Export** - Excel and CSV import/export functionality
-- <� **Highly Customizable** - Extensive configuration options
-- � **Performance Optimized** - Query optimization and caching support
-- = **Security** - CSRF protection and field-level permissions
-- < **Multi-database** - Support for multiple databases
-- =� **Responsive** - Mobile-friendly grid layouts
-- <� **DRY Principle** - Reusable components and mixins
+- ⚙️ **Auto-configuration** - Automatically discovers and configures Django models
+- 🚀 **Full CRUD Support** - Create, Read, Update, Delete operations out of the box
+- 🔍 **Advanced Filtering** - Built-in search and filtering capabilities
+- 📊 **Import/Export** - Excel and CSV import/export functionality
+- 🎨 **Highly Customizable** - Extensive configuration options
+- ⚡ **Performance Optimized** - Query optimization and caching support
+- 🔒 **Security** - CSRF protection and field-level permissions
+- 🗄️ **Multi-database** - Support for multiple databases
+- 📱 **Responsive** - Mobile-friendly grid layouts
+- 🔧 **DRY Principle** - Reusable components and mixins
 
 ## Table of Contents
 
@@ -50,330 +50,283 @@ poetry add django-jqgrid
 ### Development Installation
 
 ```bash
-git clone https://github.com/yourusername/django-jqgrid.git
+git clone https://github.com/coder-aniket/django-jqgrid.git
 cd django-jqgrid
 pip install -e .
 ```
 
 ## Quick Start
 
-### 1. Add to INSTALLED_APPS
+1. Add `django_jqgrid` to your `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
-    # ... other apps
+    ...
     'django_jqgrid',
+    ...
 ]
 ```
 
-### 2. Include URLs
+2. Include the URLconf in your project:
 
 ```python
 # urls.py
 from django.urls import path, include
 
 urlpatterns = [
-    # ... other urls
-    path('jqgrid/', include('django_jqgrid.urls', namespace='django_jqgrid')),
-    path('api/jqgrid/', include('django_jqgrid.apis_urls', namespace='django_jqgrid_api')),
+    ...
+    path('jqgrid/', include('django_jqgrid.urls')),
+    ...
 ]
 ```
 
-### 3. Run Migrations
+3. Run the auto-discovery command:
 
 ```bash
-python manage.py migrate django_jqgrid
+python manage.py discover_models
 ```
 
-### 4. Use in Templates
+4. Add the grid to your template:
 
-```django
+```html
 {% load jqgrid_tags %}
 
-{% block styles %}
+<!DOCTYPE html>
+<html>
+<head>
     {% jqgrid_css %}
-{% endblock %}
-
-{% block content %}
-    {% jqgrid "users_grid" "auth" "user" "Users" %}
-{% endblock %}
-
-{% block scripts %}
-    {% jqgrid_dependencies %}
+</head>
+<body>
+    {% jqgrid_render 'MyModel' %}
+    
     {% jqgrid_js %}
-{% endblock %}
+</body>
+</html>
 ```
+
+That's it! You now have a fully functional data grid with CRUD operations.
 
 ## Configuration
 
-### Basic Settings
+### Settings
 
-Add to your Django settings:
+Add to your `settings.py`:
 
 ```python
 JQGRID_CONFIG = {
-    # Grid Display Settings
-    'GRID_HEIGHT': 400,
-    'GRID_WIDTH': 'auto',
-    'ROW_NUM': 25,
-    'ROW_LIST': [10, 25, 50, 100, 500, 1000],
-    
-    # UI Settings
-    'ICON_SET': 'fontAwesome',  # 'fontAwesome', 'glyph', 'ui'
-    'GUI_STYLE': 'bootstrap4',   # 'bootstrap4', 'bootstrap5', 'jqueryui'
-    'LOCALE': 'en',
-    
-    # Performance Settings
-    'ENABLE_CACHE': True,
-    'CACHE_TIMEOUT': 300,
-    'OPTIMIZE_QUERIES': True,
-    
-    # Features
-    'ENABLE_IMPORT_EXPORT': True,
-    'ENABLE_FILTERS': True,
-    'ENABLE_COLUMN_CHOOSER': True,
+    'DEFAULT_ROWS_PER_PAGE': 20,
+    'ENABLE_EXCEL_EXPORT': True,
+    'ENABLE_CSV_EXPORT': True,
+    'ENABLE_FILTERING': True,
+    'ENABLE_CRUD_OPERATIONS': True,
+    'DATE_FORMAT': '%Y-%m-%d',
+    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
+    'DECIMAL_PLACES': 2,
+    'THOUSAND_SEPARATOR': ',',
+    'CACHE_TIMEOUT': 300,  # seconds
+    'USE_CACHE': True,
 }
 ```
 
-### Model-Specific Configuration
+### Model Configuration
 
 ```python
-JQGRID_MODEL_CONFIG = {
-    'myapp.MyModel': {
-        'fields': {
-            'status': {
-                'formatter': 'status_formatter',
+from django.db import models
+from django_jqgrid.mixins import JQGridMixin
+
+class Product(JQGridMixin, models.Model):
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class JQGridMeta:
+        # Grid configuration
+        grid_config = {
+            'caption': 'Product Management',
+            'height': 'auto',
+            'autowidth': True,
+            'rownumbers': True,
+            'sortname': 'name',
+            'sortorder': 'asc',
+        }
+        
+        # Column configuration
+        column_config = {
+            'name': {
+                'label': 'Product Name',
+                'width': 200,
+                'searchable': True,
+                'editable': True,
+            },
+            'price': {
+                'label': 'Price',
                 'width': 100,
+                'formatter': 'currency',
+                'align': 'right',
+            },
+            'stock': {
+                'label': 'Stock Quantity',
+                'width': 120,
+                'formatter': 'integer',
                 'align': 'center',
             },
-            'created_at': {
-                'hidden': True,
-            },
-        },
-        'options': {
-            'height': 600,
-            'rowNum': 50,
-        },
-        'bulk_actions': [
-            {
-                'name': 'approve',
-                'label': 'Approve Selected',
-                'icon': 'fa-check',
-                'handler': 'myapp.bulk_actions.approve_items',
-            },
-        ],
-    },
-}
+        }
+        
+        # Fields to exclude from grid
+        exclude_fields = ['id', 'created_at']
+        
+        # Enable features
+        enable_excel_export = True
+        enable_csv_export = True
+        enable_crud = True
+        enable_search = True
 ```
 
 ## Basic Usage
 
-### Using Template Tags
-
-```django
-{% load jqgrid_tags %}
-
-<!-- Basic grid -->
-{% jqgrid "products_grid" "shop" "product" %}
-
-<!-- Grid with title -->
-{% jqgrid "products_grid" "shop" "product" "Product List" %}
-
-<!-- Grid without import/export buttons -->
-{% jqgrid "products_grid" "shop" "product" include_import_export=False %}
-
-<!-- Grid with custom formatters -->
-{% jqgrid "products_grid" "shop" "product" 
-    custom_formatters=custom_formatters 
-    custom_buttons=custom_buttons %}
-```
-
-### Using in Views
+### Simple Grid
 
 ```python
-from django.views.generic import TemplateView
-from django_jqgrid import JQGridMixin
+# views.py
+from django.shortcuts import render
+from django_jqgrid.views import JQGridView
+from .models import Product
 
-class ProductGridView(JQGridMixin, TemplateView):
-    template_name = 'shop/products.html'
-    grid_model = 'shop.Product'
-    
-    # Optional customizations
-    grid_fields = ['name', 'price', 'category', 'in_stock']
-    readonly_fields = ['created_at']
-    grid_height = 500
+class ProductGridView(JQGridView):
+    model = Product
+    template_name = 'products/grid.html'
 ```
 
-### Management Commands
+### Template
 
-```bash
-# Auto-discover and register all models
-python manage.py discover_models
+```html
+<!-- products/grid.html -->
+{% extends "base.html" %}
+{% load jqgrid_tags %}
 
-# Discover models from specific app
-python manage.py discover_models --app myapp
+{% block content %}
+    <h1>Products</h1>
+    {% jqgrid_render model="Product" %}
+{% endblock %}
 
-# List registered models
-python manage.py discover_models --list
+{% block extra_js %}
+    {% jqgrid_js %}
+{% endblock %}
+```
+
+### URL Configuration
+
+```python
+# urls.py
+from django.urls import path
+from .views import ProductGridView
+
+urlpatterns = [
+    path('products/', ProductGridView.as_view(), name='product-grid'),
+]
 ```
 
 ## Advanced Usage
 
-### Custom Field Configuration
+### Custom Actions
 
 ```python
-class ProductGridView(JQGridMixin, TemplateView):
-    template_name = 'shop/products.html'
-    grid_model = 'shop.Product'
+from django_jqgrid.views import JQGridView
+from django.http import JsonResponse
+
+class ProductGridView(JQGridView):
+    model = Product
     
-    def configure_price(self):
-        """Custom configuration for price field"""
-        return {
-            'formatter': 'currency',
-            'formatoptions': {
-                'prefix': '$',
-                'thousandsSeparator': ',',
-                'decimalPlaces': 2
-            },
-            'align': 'right',
-            'width': 100
-        }
+    def custom_action(self, request, pk):
+        """Custom action for grid rows"""
+        product = self.get_object(pk)
+        # Your custom logic here
+        return JsonResponse({'success': True})
     
-    def configure_status(self):
-        """Custom configuration for status field"""
-        return {
-            'formatter': 'status_badge',
-            'stype': 'select',
-            'searchoptions': {
-                'value': ':All;active:Active;inactive:Inactive'
-            }
-        }
+    def get_grid_config(self):
+        config = super().get_grid_config()
+        config.update({
+            'custom_actions': [
+                {
+                    'name': 'custom_action',
+                    'label': 'Custom Action',
+                    'icon': 'fa-star',
+                    'callback': 'customActionCallback'
+                }
+            ]
+        })
+        return config
 ```
 
-### Custom Formatters
+### Custom Filters
 
 ```python
-class UserGridView(JQGridMixin, TemplateView):
-    template_name = 'users/grid.html'
-    grid_model = 'auth.User'
-    
-    custom_formatters = {
-        'status_badge': '''function(cellvalue, options, rowObject) {
-            var colors = {
-                'active': 'success',
-                'inactive': 'danger',
-                'pending': 'warning'
-            };
-            return '<span class="badge badge-' + colors[cellvalue] + '">' + 
-                   cellvalue + '</span>';
-        }''',
-        'user_avatar': '''function(cellvalue, options, rowObject) {
-            if (cellvalue) {
-                return '<img src="' + cellvalue + '" class="avatar-sm rounded-circle">';
-            }
-            return '<i class="fa fa-user-circle fa-2x"></i>';
-        }'''
+from django_jqgrid.filters import JQGridFilter
+
+class PriceRangeFilter(JQGridFilter):
+    def filter_queryset(self, queryset, value):
+        if '-' in value:
+            min_price, max_price = value.split('-')
+            return queryset.filter(
+                price__gte=min_price,
+                price__lte=max_price
+            )
+        return queryset
+
+class ProductGridView(JQGridView):
+    model = Product
+    custom_filters = {
+        'price_range': PriceRangeFilter()
     }
 ```
 
-### Bulk Actions
+### Bulk Operations
 
 ```python
-class OrderGridView(JQGridMixin, TemplateView):
-    template_name = 'orders/grid.html'
-    grid_model = 'shop.Order'
+class ProductGridView(JQGridView):
+    model = Product
+    enable_bulk_operations = True
     
-    custom_bulk_actions = [
-        {
-            'name': 'mark_shipped',
-            'label': 'Mark as Shipped',
-            'icon': 'fa-truck',
-            'handler': 'markOrdersShipped',
-            'confirm': 'Mark selected orders as shipped?'
-        },
-        {
-            'name': 'generate_invoices',
-            'label': 'Generate Invoices',
-            'icon': 'fa-file-invoice',
-            'handler': 'generateInvoices',
-            'modal': True  # Opens in modal dialog
+    def bulk_update_stock(self, request, selected_ids):
+        """Bulk update stock for selected products"""
+        new_stock = request.POST.get('new_stock')
+        Product.objects.filter(id__in=selected_ids).update(stock=new_stock)
+        return JsonResponse({'success': True, 'updated': len(selected_ids)})
+    
+    def get_bulk_actions(self):
+        return [
+            {
+                'name': 'bulk_update_stock',
+                'label': 'Update Stock',
+                'icon': 'fa-boxes',
+                'form_fields': [
+                    {'name': 'new_stock', 'type': 'number', 'label': 'New Stock'}
+                ]
+            }
+        ]
+```
+
+### Dynamic Column Configuration
+
+```python
+class ProductGridView(JQGridView):
+    model = Product
+    
+    def get_column_config(self):
+        config = super().get_column_config()
+        
+        # Dynamic column visibility based on user permissions
+        if not self.request.user.has_perm('products.view_price'):
+            config['price']['hidden'] = True
+            
+        # Add computed columns
+        config['total_value'] = {
+            'label': 'Total Value',
+            'formatter': 'currency',
+            'computed': True,
+            'formula': 'price * stock'
         }
-    ]
-```
-
-### Permission-Based Access
-
-```python
-class EmployeeGridView(JQGridMixin, PermissionRequiredMixin, TemplateView):
-    template_name = 'hr/employees.html'
-    grid_model = 'hr.Employee'
-    permission_required = 'hr.view_employee'
-    
-    def has_field_permission(self, field_name, action='read'):
-        """Field-level permission control"""
-        user = self.request.user
-        
-        # Only HR managers can see salary information
-        if field_name in ['salary', 'bonus', 'ssn']:
-            return user.has_perm('hr.view_sensitive_data')
-        
-        # Only the employee or their manager can edit performance reviews
-        if field_name == 'performance_review' and action == 'edit':
-            return user.has_perm('hr.edit_performance')
-        
-        return True
-    
-    def can_delete(self):
-        """Only HR admins can bulk delete"""
-        return self.request.user.has_perm('hr.delete_employee')
-```
-
-### Query Optimization
-
-```python
-class OrderDetailGridView(JQGridMixin, TemplateView):
-    template_name = 'orders/details.html'
-    
-    def get_model(self):
-        from shop.models import OrderItem
-        return OrderItem
-    
-    def get_optimized_queryset(self, queryset):
-        """Optimize queries for better performance"""
-        # Parent class handles basic optimization
-        queryset = super().get_optimized_queryset(queryset)
-        
-        # Add custom optimization
-        return queryset.select_related(
-            'order__customer',
-            'product__category',
-        ).prefetch_related(
-            'order__payments',
-        ).annotate(
-            line_total=F('quantity') * F('price'),
-            customer_name=F('order__customer__name')
-        )
-```
-
-### Dynamic Configuration
-
-```python
-class DynamicGridView(JQGridMixin, TemplateView):
-    template_name = 'dynamic/grid.html'
-    
-    def get_model(self):
-        """Dynamically determine model based on URL"""
-        model_name = self.kwargs.get('model')
-        return apps.get_model('myapp', model_name)
-    
-    def get_grid_config(self):
-        """Customize configuration based on user preferences"""
-        config = super().get_grid_config()
-        
-        # Apply user's saved preferences
-        user_prefs = UserPreference.objects.get(user=self.request.user)
-        if user_prefs.grid_theme:
-            config['options']['styleUI'] = user_prefs.grid_theme
         
         return config
 ```
@@ -382,333 +335,536 @@ class DynamicGridView(JQGridMixin, TemplateView):
 
 ### Custom Templates
 
-Create your own grid template by extending the base:
+Create custom templates for different parts of the grid:
 
-```django
-<!-- templates/myapp/custom_grid.html -->
-{% extends "django_jqgrid/grid_container.html" %}
+```html
+<!-- templates/jqgrid/custom_grid.html -->
+{% extends "django_jqgrid/grid_base.html" %}
 
 {% block grid_toolbar %}
-    <div class="btn-group">
-        <button id="custom-action" class="btn btn-primary">
-            <i class="fa fa-magic"></i> Custom Action
-        </button>
+    <div class="custom-toolbar">
+        <button id="custom-button">Custom Action</button>
     </div>
     {{ block.super }}
 {% endblock %}
 
-{% block grid_scripts %}
-    {{ block.super }}
-    <script>
-        $('#custom-action').click(function() {
-            // Custom action logic
-        });
-    </script>
+{% block grid_footer %}
+    <div class="custom-footer">
+        Custom footer content
+    </div>
 {% endblock %}
 ```
 
-### JavaScript Hooks
+### JavaScript Callbacks
 
 ```javascript
-// static/js/grid-customizations.js
-$(document).ready(function() {
-    // Hook into grid initialization
-    $(document).on('jqGrid:beforeInit', function(e, gridId, options) {
-        console.log('Grid initializing:', gridId);
-        // Modify options before initialization
-        options.beforeSelectRow = function(rowid, e) {
-            console.log('Row selected:', rowid);
-            return true;
-        };
+// static/js/grid_callbacks.js
+function customActionCallback(rowId) {
+    $.ajax({
+        url: '/products/custom-action/' + rowId + '/',
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        success: function(response) {
+            $('#grid').trigger('reloadGrid');
+            showNotification('Action completed successfully');
+        }
     });
-    
-    // Hook into grid load complete
-    $(document).on('jqGrid:loadComplete', function(e, gridId, data) {
-        console.log('Grid loaded:', gridId);
-        // Custom post-load logic
-    });
+}
+
+// Grid event handlers
+$(document).on('jqGrid:afterLoad', function(e, gridId) {
+    console.log('Grid loaded:', gridId);
+});
+
+$(document).on('jqGrid:beforeSave', function(e, rowData) {
+    // Validate before saving
+    if (rowData.price < 0) {
+        e.preventDefault();
+        alert('Price cannot be negative');
+    }
 });
 ```
 
 ### CSS Customization
 
 ```css
-/* static/css/grid-custom.css */
-
-/* Custom grid styling */
-.jqgrid-container {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* static/css/custom_grid.css */
+.ui-jqgrid {
+    font-family: 'Roboto', sans-serif;
 }
 
-/* Custom header styling */
-.ui-jqgrid-hdiv {
-    background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+.ui-jqgrid-htable th {
+    background-color: #2c3e50;
+    color: white;
 }
 
-/* Custom row hover */
-.ui-jqgrid tr.jqgrow:hover {
-    background-color: #f0f8ff;
+.ui-jqgrid-bdiv tr:hover {
+    background-color: #ecf0f1;
 }
 
-/* Status badge in cells */
-.badge-status {
-    padding: 0.25em 0.6em;
-    font-size: 0.75em;
-    font-weight: 700;
-    border-radius: 0.25rem;
+/* Custom cell styling */
+.grid-cell-warning {
+    background-color: #f39c12 !important;
+    color: white;
+}
+
+.grid-cell-danger {
+    background-color: #e74c3c !important;
+    color: white;
 }
 ```
 
 ## API Reference
 
-### JQGridMixin
+### View Classes
 
-The main mixin class for adding jqGrid functionality to views.
+#### JQGridView
 
-#### Attributes
+Base view for rendering jqGrid.
 
-- `grid_model` - Model class or string reference (e.g., 'app.Model')
-- `grid_fields` - List of fields to include (default: all fields)
-- `exclude_fields` - List of fields to exclude
-- `readonly_fields` - List of read-only fields
-- `hidden_fields` - List of hidden fields
-- `grid_height` - Grid height in pixels or 'auto'
-- `grid_width` - Grid width in pixels or 'auto'
-- `row_num` - Default rows per page
-- `row_list` - Page size options
+**Attributes:**
+- `model` - Django model class
+- `template_name` - Template to render
+- `paginate_by` - Number of rows per page
+- `enable_export` - Enable/disable export functionality
+- `enable_crud` - Enable/disable CRUD operations
 
-#### Methods
+**Methods:**
+- `get_queryset()` - Returns the base queryset
+- `get_grid_config()` - Returns grid configuration
+- `get_column_config()` - Returns column configuration
+- `process_grid_request()` - Handles AJAX grid requests
 
-- `get_model()` - Return the model class for the grid
-- `get_grid_config()` - Return the complete grid configuration
-- `get_optimized_queryset(queryset)` - Apply query optimizations
-- `has_field_permission(field_name, action)` - Check field permissions
-- `configure_<field_name>()` - Custom configuration for specific field
+#### JQGridAPIView
+
+REST API view for grid data.
+
+**Methods:**
+- `list()` - GET method for retrieving grid data
+- `create()` - POST method for creating records
+- `update()` - PUT method for updating records
+- `destroy()` - DELETE method for deleting records
 
 ### Template Tags
 
-#### jqgrid_css
-Include required CSS files.
+#### jqgrid_render
+
+Renders the complete grid.
+
 ```django
-{% jqgrid_css %}
+{% jqgrid_render model="ModelName" config=grid_config %}
 ```
 
-#### jqgrid_dependencies
-Include required JavaScript dependencies.
+**Parameters:**
+- `model` - Model name or instance
+- `config` - Optional configuration dictionary
+- `height` - Grid height (default: 'auto')
+- `width` - Grid width (default: 'auto')
+
+#### jqgrid_css
+
+Includes required CSS files.
+
 ```django
-{% jqgrid_dependencies %}
+{% jqgrid_css theme="bootstrap4" %}
 ```
 
 #### jqgrid_js
-Include jqGrid JavaScript files.
-```django
-{% jqgrid_js %}
-```
 
-#### jqgrid
-Render a complete jqGrid.
-
-Parameters:
-- `grid_id` - Unique identifier for the grid
-- `app_name` - Django app name
-- `model_name` - Model name (lowercase)
-- `grid_title` - Optional grid title
-- `custom_formatters` - Dict of custom formatters
-- `custom_buttons` - Dict of custom buttons
-- `custom_bulk_actions` - List of bulk actions
-- `include_import_export` - Show import/export buttons (default: True)
+Includes required JavaScript files.
 
 ```django
-{% jqgrid grid_id app_name model_name [grid_title] [**kwargs] %}
+{% jqgrid_js include_locale=True %}
 ```
 
-### JavaScript API
+### Mixins
 
-#### Grid Initialization
-```javascript
-$('#myGrid').jqGrid({
-    url: '/api/myapp/mymodel/',
-    datatype: 'json',
-    colModel: [...],
-    // ... other options
-});
-```
+#### JQGridMixin
 
-#### Custom Bulk Action Handler
-```javascript
-function myBulkAction(selectedIds, gridId) {
-    $.ajax({
-        url: '/api/bulk-action/',
-        method: 'POST',
-        data: {
-            action: 'my_action',
-            ids: selectedIds
-        },
-        success: function(response) {
-            $('#' + gridId).trigger('reloadGrid');
-            showNotification('Action completed successfully');
-        }
-    });
-}
-```
+Model mixin that adds jqGrid functionality.
+
+**Class Attributes:**
+- `JQGridMeta` - Configuration class
+
+**Methods:**
+- `get_grid_data()` - Returns formatted data for grid
+- `get_display_value()` - Returns display value for field
+
+#### JQGridQuerysetMixin
+
+Mixin for queryset optimization.
+
+**Methods:**
+- `optimized_for_grid()` - Returns optimized queryset
+- `with_annotations()` - Adds grid-specific annotations
 
 ## Examples
 
-### E-commerce Product Grid
+### Complete Working Example
 
 ```python
-# views.py
-class ProductGridView(JQGridMixin, TemplateView):
-    template_name = 'shop/products.html'
-    grid_model = Product
-    grid_fields = ['sku', 'name', 'category', 'price', 'stock', 'status']
-    readonly_fields = ['sku']
-    
-    custom_formatters = {
-        'price': '''function(cellvalue) {
-            return '$' + parseFloat(cellvalue).toFixed(2);
-        }''',
-        'stock': '''function(cellvalue) {
-            if (cellvalue < 10) {
-                return '<span class="text-danger">' + cellvalue + '</span>';
-            }
-            return cellvalue;
-        }'''
-    }
-    
-    custom_bulk_actions = [
-        {
-            'name': 'update_prices',
-            'label': 'Update Prices',
-            'icon': 'fa-tag',
-            'handler': 'showPriceUpdateDialog'
-        },
-        {
-            'name': 'generate_barcodes',
-            'label': 'Generate Barcodes',
-            'icon': 'fa-barcode',
-            'handler': 'generateBarcodes'
-        }
-    ]
-```
+# models.py
+from django.db import models
+from django_jqgrid.mixins import JQGridMixin
 
-### User Management Grid
-
-```python
-# views.py
-class UserManagementView(JQGridMixin, UserPassesTestMixin, TemplateView):
-    template_name = 'admin/users.html'
-    grid_model = User
-    grid_fields = ['username', 'email', 'first_name', 'last_name', 
-                   'is_active', 'date_joined', 'last_login']
+class Order(JQGridMixin, models.Model):
+    order_number = models.CharField(max_length=20, unique=True)
+    customer_name = models.CharField(max_length=100)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=[
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+    ])
+    created_at = models.DateTimeField(auto_now_add=True)
     
-    def test_func(self):
-        return self.request.user.is_staff
-    
-    def configure_is_active(self):
-        return {
-            'formatter': 'checkbox',
-            'align': 'center',
-            'width': 80,
-            'edittype': 'checkbox'
+    class JQGridMeta:
+        grid_config = {
+            'caption': 'Order Management',
+            'multiselect': True,
+            'multiboxonly': True,
         }
-    
-    def configure_date_joined(self):
-        return {
-            'formatter': 'date',
-            'formatoptions': {
-                'srcformat': 'Y-m-d H:i:s',
-                'newformat': 'm/d/Y'
+        
+        column_config = {
+            'order_number': {
+                'label': 'Order #',
+                'width': 120,
+                'frozen': True,
             },
-            'width': 100
+            'customer_name': {
+                'label': 'Customer',
+                'width': 200,
+            },
+            'status': {
+                'label': 'Status',
+                'width': 100,
+                'formatter': 'select',
+                'stype': 'select',
+                'searchoptions': {
+                    'value': ':All;pending:Pending;processing:Processing;shipped:Shipped;delivered:Delivered'
+                }
+            },
+            'total_amount': {
+                'label': 'Total',
+                'width': 100,
+                'formatter': 'currency',
+                'align': 'right',
+            }
         }
+
+# views.py
+from django_jqgrid.views import JQGridView
+from django.db.models import Q
+
+class OrderGridView(JQGridView):
+    model = Order
+    template_name = 'orders/list.html'
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Add custom filtering
+        if self.request.GET.get('status'):
+            queryset = queryset.filter(status=self.request.GET['status'])
+        return queryset.select_related('product')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_choices'] = Order._meta.get_field('status').choices
+        return context
+
+# templates/orders/list.html
+{% extends "base.html" %}
+{% load jqgrid_tags %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1>Orders</h1>
+    
+    <!-- Status Filter -->
+    <div class="mb-3">
+        <select id="status-filter" class="form-control">
+            <option value="">All Status</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <!-- Grid -->
+    {% jqgrid_render model="Order" %}
+    
+    <!-- Custom Buttons -->
+    <div class="mt-3">
+        <button id="export-selected" class="btn btn-primary">Export Selected</button>
+        <button id="bulk-update-status" class="btn btn-warning">Update Status</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% jqgrid_js %}
+<script>
+$(document).ready(function() {
+    // Status filter
+    $('#status-filter').on('change', function() {
+        var status = $(this).val();
+        $('#grid').jqGrid('setGridParam', {
+            postData: { status: status }
+        }).trigger('reloadGrid');
+    });
+    
+    // Export selected rows
+    $('#export-selected').on('click', function() {
+        var selectedRows = $('#grid').jqGrid('getGridParam', 'selarrrow');
+        if (selectedRows.length === 0) {
+            alert('Please select rows to export');
+            return;
+        }
+        
+        window.location.href = '/orders/export/?ids=' + selectedRows.join(',');
+    });
+    
+    // Bulk update status
+    $('#bulk-update-status').on('click', function() {
+        var selectedRows = $('#grid').jqGrid('getGridParam', 'selarrrow');
+        if (selectedRows.length === 0) {
+            alert('Please select rows to update');
+            return;
+        }
+        
+        var newStatus = prompt('Enter new status (pending/processing/shipped/delivered):');
+        if (newStatus) {
+            $.ajax({
+                url: '/orders/bulk-update-status/',
+                method: 'POST',
+                data: {
+                    ids: selectedRows,
+                    status: newStatus,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    $('#grid').trigger('reloadGrid');
+                    alert('Updated ' + response.updated + ' orders');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
 ```
 
-### Dynamic Report Grid
+### Multi-Database Example
 
 ```python
 # views.py
-class ReportGridView(JQGridMixin, TemplateView):
-    template_name = 'reports/grid.html'
+from django_jqgrid.views import JQGridView
+
+class MultiDBGridView(JQGridView):
+    model = Product
+    using = 'warehouse_db'  # Specify database
     
-    def get_model(self):
-        report_type = self.request.GET.get('type', 'sales')
-        if report_type == 'sales':
-            return SalesReport
-        elif report_type == 'inventory':
-            return InventoryReport
-        else:
-            return CustomerReport
-    
-    def get_grid_config(self):
-        config = super().get_grid_config()
-        
-        # Add export filename
-        report_type = self.request.GET.get('type', 'sales')
-        config['export_filename'] = f'{report_type}_report_{datetime.now():%Y%m%d}'
-        
-        return config
+    def get_queryset(self):
+        # Use specific database
+        return self.model.objects.using(self.using).all()
+
+# settings.py
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'main_db',
+        # ... other settings
+    },
+    'warehouse_db': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'warehouse',
+        # ... other settings
+    }
+}
 ```
 
-## Performance Tips
+### Custom Cell Rendering
 
-1. **Enable Caching**
-   ```python
-   JQGRID_CONFIG = {
-       'ENABLE_CACHE': True,
-       'CACHE_TIMEOUT': 600,  # 10 minutes
-   }
-   ```
+```python
+# models.py
+class Product(JQGridMixin, models.Model):
+    name = models.CharField(max_length=100)
+    stock = models.IntegerField()
+    
+    class JQGridMeta:
+        column_config = {
+            'stock': {
+                'label': 'Stock',
+                'width': 100,
+                'cellattr': 'stockCellAttr',
+                'formatter': 'stockFormatter'
+            }
+        }
 
-2. **Use Query Optimization**
-   ```python
-   class OptimizedGridView(JQGridMixin, TemplateView):
-       def get_optimized_queryset(self, queryset):
-           return queryset.select_related('related_model').prefetch_related('many_related')
-   ```
+# In your template
+{% block extra_js %}
+<script>
+function stockFormatter(cellvalue, options, rowObject) {
+    if (cellvalue < 10) {
+        return '<span class="text-danger font-weight-bold">' + cellvalue + '</span>';
+    } else if (cellvalue < 50) {
+        return '<span class="text-warning">' + cellvalue + '</span>';
+    }
+    return '<span class="text-success">' + cellvalue + '</span>';
+}
 
-3. **Limit Page Size**
-   ```python
-   JQGRID_CONFIG = {
-       'MAX_PAGE_SIZE': 500,  # Prevent loading too many records
-   }
-   ```
+function stockCellAttr(rowId, val, rawObject, cm, rdata) {
+    if (parseInt(val) < 10) {
+        return 'class="bg-danger text-white"';
+    }
+    return '';
+}
+</script>
+{% endblock %}
+```
 
-4. **Use Pagination**
-   Always use server-side pagination for large datasets.
+## Performance Optimization
 
-5. **Index Database Fields**
-   Ensure fields used for sorting and filtering are indexed.
+### Query Optimization
+
+```python
+from django_jqgrid.mixins import JQGridOptimizedMixin
+
+class OptimizedProductView(JQGridOptimizedMixin, JQGridView):
+    model = Product
+    
+    # Specify related fields to prefetch
+    prefetch_related = ['category', 'tags']
+    select_related = ['manufacturer']
+    
+    # Only load necessary fields
+    only_fields = ['id', 'name', 'price', 'stock', 'category__name']
+    
+    # Add database indexes
+    class Meta:
+        indexes = [
+            models.Index(fields=['name', 'price']),
+            models.Index(fields=['stock']),
+        ]
+```
+
+### Caching
+
+```python
+from django.core.cache import cache
+from django_jqgrid.views import JQGridView
+
+class CachedGridView(JQGridView):
+    model = Product
+    cache_timeout = 300  # 5 minutes
+    
+    def get_grid_data(self, request):
+        cache_key = f'grid_data_{self.model.__name__}_{request.GET.urlencode()}'
+        data = cache.get(cache_key)
+        
+        if data is None:
+            data = super().get_grid_data(request)
+            cache.set(cache_key, data, self.cache_timeout)
+            
+        return data
+```
+
+## Security
+
+### Field-Level Permissions
+
+```python
+class SecureGridView(JQGridView):
+    model = Product
+    
+    def get_column_config(self):
+        config = super().get_column_config()
+        user = self.request.user
+        
+        # Hide sensitive fields based on permissions
+        if not user.has_perm('products.view_cost'):
+            config['cost']['hidden'] = True
+            
+        # Make fields read-only based on permissions
+        if not user.has_perm('products.change_price'):
+            config['price']['editable'] = False
+            
+        return config
+    
+    def check_crud_permission(self, action):
+        """Check if user has permission for CRUD action"""
+        permission_map = {
+            'create': 'products.add_product',
+            'update': 'products.change_product',
+            'delete': 'products.delete_product',
+        }
+        
+        return self.request.user.has_perm(permission_map.get(action, ''))
+```
+
+### CSRF Protection
+
+All AJAX requests include CSRF protection by default. Custom implementations:
+
+```javascript
+// Ensure CSRF token is included in all AJAX requests
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        }
+    }
+});
+```
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Grid not loading**
+1. **Grid not loading data**
    - Check browser console for JavaScript errors
    - Verify URLs are correctly configured
-   - Ensure static files are served correctly
+   - Check Django debug toolbar for query issues
 
-2. **No data displayed**
-   - Check API endpoint returns data
-   - Verify model permissions
-   - Check for JavaScript errors
+2. **Export not working**
+   - Ensure `django_jqgrid` is in INSTALLED_APPS
+   - Check that `MEDIA_ROOT` is configured
+   - Verify user has export permissions
 
-3. **Styling issues**
-   - Ensure CSS files are loaded in correct order
-   - Check for CSS conflicts with other libraries
-   - Verify GUI_STYLE setting matches your framework
+3. **Editing not saving**
+   - Check CSRF token is included
+   - Verify model has proper permissions
+   - Check for validation errors in response
 
 ### Debug Mode
 
 Enable debug mode for detailed logging:
 
 ```python
+# settings.py
 JQGRID_CONFIG = {
-    'DEBUG': True,  # Enable debug logging
+    'DEBUG': True,
+    'LOG_LEVEL': 'DEBUG',
 }
+
+# views.py
+import logging
+
+logger = logging.getLogger('django_jqgrid')
+
+class DebugGridView(JQGridView):
+    model = Product
+    
+    def get_grid_data(self, request):
+        logger.debug(f"Grid request: {request.GET}")
+        data = super().get_grid_data(request)
+        logger.debug(f"Returning {len(data['rows'])} rows")
+        return data
 ```
 
 ## Contributing
@@ -718,8 +874,8 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ### Development Setup
 
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/django-jqgrid.git
+# Clone the repository
+git clone https://github.com/coder-aniket/django-jqgrid.git
 cd django-jqgrid
 
 # Create virtual environment
@@ -734,7 +890,8 @@ pytest
 
 # Run linting
 flake8
-black --check .
+black .
+isort .
 ```
 
 ### Running Tests
@@ -746,27 +903,30 @@ pytest
 # Run with coverage
 pytest --cov=django_jqgrid
 
-# Run specific test
-pytest tests/test_mixins.py::TestJQGridMixin
+# Run specific test file
+pytest tests/test_views.py
+
+# Run with verbose output
+pytest -v
 ```
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Changelog
+## Acknowledgments
 
-See [CHANGELOG.md](CHANGELOG.md) for a list of changes.
-
-## Credits
-
-- Built with [jqGrid](https://github.com/tonytomov/jqGrid)
-- Inspired by Django admin's list display
-- Thanks to all [contributors](https://github.com/yourusername/django-jqgrid/graphs/contributors)
+- Built on top of the excellent [jqGrid](https://github.com/tonytomov/jqGrid) library
+- Inspired by Django's admin interface
+- Thanks to all our contributors
 
 ## Support
 
-- Documentation: [https://django-jqgrid.readthedocs.io](https://django-jqgrid.readthedocs.io)
-- Issues: [GitHub Issues](https://github.com/yourusername/django-jqgrid/issues)
-- Discussions: [GitHub Discussions](https://github.com/yourusername/django-jqgrid/discussions)
-- Stack Overflow: Tag with `django-jqgrid`
+- 📧 Email: coder.aniketp@gmail.com
+- 🐛 Issues: [GitHub Issues](https://github.com/coder-aniket/django-jqgrid/issues)
+- 📖 Documentation: [Read the Docs](https://django-jqgrid.readthedocs.io)
+- 💬 Discussions: [GitHub Discussions](https://github.com/coder-aniket/django-jqgrid/discussions)
+
+---
+
+Made with ❤️ by the Django JQGrid team

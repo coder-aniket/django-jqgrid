@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 README = ''
 readme_path = os.path.join(os.path.dirname(__file__), 'README.md')
 if os.path.exists(readme_path):
-    with open(readme_path, encoding='utf-8') as readme:
+    with open(readme_path, encoding='utf-8', errors='ignore') as readme:
         README = readme.read()
 else:
     README = """
@@ -45,16 +45,17 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-jqgrid',
-    version='1.0.0',
-    packages=find_packages(exclude=['tests*', 'docs*', 'examples*']),
+    version='1.0.01',
+    packages=['django_jqgrid'],
+    package_dir={'django_jqgrid': '.'},
     include_package_data=True,
     license='MIT License',
     description='A Django package for easy integration of jqGrid with automatic configuration, comprehensive CRUD operations, and advanced features.',
     long_description=README,
     long_description_content_type='text/markdown',
-    url='https://github.com/yourusername/django-jqgrid',
-    author='Your Name',
-    author_email='your.email@example.com',
+    url='https://github.com/coder-aniket/django-jqgrid',
+    author='coder-aniket',
+    author_email='coder.aniketp@gmail.com',
     keywords=['django', 'jqgrid', 'grid', 'data-table', 'crud', 'admin', 'interface', 'jquery', 'bootstrap'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -116,8 +117,8 @@ setup(
     },
     project_urls={
         'Documentation': 'https://django-jqgrid.readthedocs.io',
-        'Source': 'https://github.com/yourusername/django-jqgrid',
-        'Issues': 'https://github.com/yourusername/django-jqgrid/issues',
-        'Changelog': 'https://github.com/yourusername/django-jqgrid/blob/main/CHANGELOG.md',
+        'Source': 'https://github.com/coder-aniket/django-jqgrid',
+        'Issues': 'https://github.com/coder-aniket/django-jqgrid/issues',
+        'Changelog': 'https://github.com/coder-aniket/django-jqgrid/blob/main/CHANGELOG.md',
     },
 )

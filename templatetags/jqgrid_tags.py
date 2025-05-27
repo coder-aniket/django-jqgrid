@@ -2,6 +2,7 @@ import json
 
 from django import template
 from django.utils.safestring import mark_safe
+from django.templatetags.static import static
 
 register = template.Library()
 
@@ -13,16 +14,16 @@ def jqgrid_css():
     """
     css = [
         # jQuery UI CSS
-        '<link rel="stylesheet" href="/static/django_jqgrid/plugins/jquery-ui/jquery-ui.min.css">',
+        f'<link rel="stylesheet" href="{static("django_jqgrid/plugins/jquery-ui/jquery-ui.min.css")}">',
 
         # jqGrid core CSS
-        '<link rel="stylesheet" href="/static/django_jqgrid/plugins/jqGrid/css/ui.jqgrid-bootstrap4.css">',
+        f'<link rel="stylesheet" href="{static("django_jqgrid/plugins/jqGrid/css/ui.jqgrid-bootstrap4.css")}">',
 
         # jqGrid addons CSS
-        '<link rel="stylesheet" href="/static/django_jqgrid/plugins/jqGrid/css/addons/ui.multiselect.css">',
+        f'<link rel="stylesheet" href="{static("django_jqgrid/plugins/jqGrid/css/addons/ui.multiselect.css")}">',
 
         # Custom jqGrid styles
-        '<link rel="stylesheet" href="/static/django_jqgrid/css/jqgrid-bootstrap.css">'
+        f'<link rel="stylesheet" href="{static("django_jqgrid/css/jqgrid-bootstrap.css")}">'
     ]
     return mark_safe('\n'.join(css))
 
@@ -35,13 +36,13 @@ def jqgrid_dependencies():
     """
     js = [
         # jQuery Core
-        '<script src="/static/django_jqgrid/plugins/jquery/jquery.min.js"></script>',
+        f'<script src="{static("django_jqgrid/plugins/jquery/jquery.min.js")}"></script>',
 
         # jQuery UI and dependencies
-        '<script src="/static/django_jqgrid/plugins/jquery-ui/jquery-ui.min.js"></script>',
+        f'<script src="{static("django_jqgrid/plugins/jquery-ui/jquery-ui.min.js")}"></script>',
 
         # XLSX support for import/export
-        '<script src="/static/django_jqgrid/plugins/xlsx/xlsx.full.min.js"></script>',
+        f'<script src="{static("django_jqgrid/plugins/xlsx/xlsx.full.min.js")}"></script>',
     ]
     return mark_safe('\n'.join(js))
 
@@ -53,19 +54,19 @@ def jqgrid_js():
     """
     js = [
         # jqGrid core files
-        '<script src="/static/django_jqgrid/plugins/jqGrid/js/i18n/grid.locale-en.js"></script>',
-        '<script src="/static/django_jqgrid/plugins/jqGrid/js/jquery.jqGrid.min.js"></script>',
+        f'<script src="{static("django_jqgrid/plugins/jqGrid/js/i18n/grid.locale-en.js")}"></script>',
+        f'<script src="{static("django_jqgrid/plugins/jqGrid/js/jquery.jqGrid.min.js")}"></script>',
 
         # Additional plugins
-        '<script src="/static/django_jqgrid/plugins/jqGrid/plugins/jquery.contextmenu.js"></script>',
-        '<script src="/static/django_jqgrid/plugins/jqGrid/plugins/grid.postext.js"></script>',
-        '<script src="/static/django_jqgrid/plugins/jqGrid/plugins/jquery.tablednd.js"></script>',
+        f'<script src="{static("django_jqgrid/plugins/jqGrid/plugins/jquery.contextmenu.js")}"></script>',
+        f'<script src="{static("django_jqgrid/plugins/jqGrid/plugins/grid.postext.js")}"></script>',
+        f'<script src="{static("django_jqgrid/plugins/jqGrid/plugins/jquery.tablednd.js")}"></script>',
 
         # Our custom jqGrid modules
-        '<script src="/static/django_jqgrid/js/jqgrid-config.js"></script>',
-        '<script src="/static/mainapp/js/multi-db-jqgrid.js"></script>',
-        '<script src="/static/mainapp/js/multi-db-import-export.js"></script>',
-        # '<script src="/static/django_jqgrid/js/jqgrid-integration.js"></script>'
+        f'<script src="{static("django_jqgrid/js/jqgrid-config.js")}"></script>',
+        f'<script src="{static("django_jqgrid/js/jqgrid-core.js")}"></script>',
+        f'<script src="{static("django_jqgrid/js/jqgrid-import-export.js")}"></script>',
+        # f'<script src="{static("django_jqgrid/js/jqgrid-integration.js")}"></script>'
     ]
     return mark_safe('\n'.join(js))
 
