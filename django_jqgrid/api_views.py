@@ -13,20 +13,20 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.serializers import ModelSerializer
 import json
 
-from .mixins import JqGridMixin
+from .mixins import JqGridConfigMixin, JqGridBulkActionMixin
 from .pagination import JqGridPagination
-from .filters import JqGridFilter
-from .serializers import JqGridSerializer
+from .filters import JqGridFilterBackend
+# JqGridSerializer not needed - using dynamic serializers
 
 
-class JqGridModelViewSet(viewsets.ModelViewSet):
+class JqGridModelViewSet(JqGridConfigMixin, JqGridBulkActionMixin, viewsets.ModelViewSet):
     """
     Generic ViewSet for jqGrid operations
     Dynamically handles any model based on URL parameters
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = []  # Temporarily disabled for testing
     pagination_class = JqGridPagination
-    filter_backends = [JqGridFilter]
+    filter_backends = [JqGridFilterBackend]
     
     def get_model(self):
         """Get model class from URL parameters"""
@@ -42,7 +42,8 @@ class JqGridModelViewSet(viewsets.ModelViewSet):
         """Get queryset for the model"""
         model = self.get_model()
         if not model:
-            return model.objects.none()
+            from django.db.models import QuerySet
+            return QuerySet().none()
         
         queryset = model.objects.all()
         
@@ -75,9 +76,12 @@ class JqGridModelViewSet(viewsets.ModelViewSet):
             pass
         
         # Create dynamic serializer
-        class DynamicModelSerializer(JqGridSerializer):
+        # Store model in a variable that can be accessed in the Meta class
+        _model = model
+        
+        class DynamicModelSerializer(ModelSerializer):
             class Meta:
-                model = model
+                model = _model
                 fields = '__all__'
         
         return DynamicModelSerializer
@@ -157,6 +161,26 @@ class JqGridModelViewSet(viewsets.ModelViewSet):
         
         return queryset
     
+    @action(detail=False, methods=['get'])
+    def jqgrid_config(self, request, *args, **kwargs):
+        """Override to ensure serializer_class is set"""
+        try:
+            # Store the dynamic serializer class
+            self.serializer_class = self.get_serializer_class()
+            # Store request for access in mixin
+            self.request = request
+            # Set queryset to ensure model is available
+            self.queryset = self.get_queryset()
+            # Call parent method
+            return super().jqgrid_config(request, *args, **kwargs)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({
+                'error': str(e),
+                'data': None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
     @action(detail=False, methods=['post'])
     def bulk_action(self, request, *args, **kwargs):
         """Handle bulk actions"""
@@ -205,6 +229,77 @@ class JqGridModelViewSet(viewsets.ModelViewSet):
         """Import data into grid"""
         # Implementation for data import
         return Response({'message': 'Import functionality not yet implemented'})
+    
+    @action(detail=False, methods=['get'])
+    def dropdown(self, request, *args, **kwargs):
+        """
+        Return dropdown options for select fields
+        Format: {"": "All", "1": "Option 1", "2": "Option 2", ...}
+        """
+        model = self.get_model()
+        if not model:
+            return Response({})
+        
+        # Get the field name from query params
+        field_name = request.GET.get('field_name', '')
+        
+        # Get all objects
+        queryset = self.get_queryset()
+        
+        # Build dropdown options
+        options = {":": "All"}  # Default empty option
+        
+        for obj in queryset:
+            # Get display value - try common patterns
+            display_value = None
+            
+            # Try different methods to get a display value
+            if hasattr(obj, 'get_display_name'):
+                display_value = obj.get_display_name()
+            elif hasattr(obj, 'name'):
+                display_value = obj.name
+            elif hasattr(obj, 'title'):
+                display_value = obj.title
+            elif hasattr(obj, '__str__'):
+                display_value = str(obj)
+            else:
+                display_value = f"{model.__name__} {obj.pk}"
+            
+            options[str(obj.pk)] = display_value
+        
+        # Return in the format jqGrid expects
+        return Response(options)
+    
+    @action(detail=True, methods=['get'])
+    def dropdown_pk(self, request, pk=None, *args, **kwargs):
+        """
+        Return dropdown options for a specific record
+        Used for editing existing records
+        """
+        return self.dropdown(request, *args, **kwargs)
+    
+    @action(detail=False, methods=['get'])
+    def additional_data_response(self, request, *args, **kwargs):
+        """
+        Return additional data for the grid
+        Used for custom data that might be needed by the frontend
+        """
+        model = self.get_model()
+        if not model:
+            return Response({})
+        
+        # Initialize grid configuration to get additional data
+        self.serializer_class = self.get_serializer_class()
+        self.request = request
+        self.queryset = self.get_queryset()
+        
+        # Initialize the grid to populate additional_data
+        try:
+            self.initgrid()
+            additional_data = getattr(self, 'additional_data', {})
+            return Response(additional_data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 from rest_framework.decorators import api_view

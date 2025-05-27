@@ -45,7 +45,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-jqgrid',
-    version='1.0.03',
+    version='1.0.3',
     packages=find_packages(exclude=['example*', 'tests*']),
     include_package_data=True,
     license='MIT License',

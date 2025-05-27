@@ -309,8 +309,13 @@ class JqGridConfigMixin:
             }
 
         # Get model and app name for URLs
-        self.model_name = model.__name__.lower() if model else ""
-        self.app_label = model._meta.app_label if model else ""
+        if model:
+            self.model_name = model.__name__.lower()
+            self.app_label = model._meta.app_label
+        else:
+            # Fallback: try to get from kwargs if model not available
+            self.model_name = getattr(self, 'kwargs', {}).get('model_name', '')
+            self.app_label = getattr(self, 'kwargs', {}).get('app_name', '')
 
         # Ensure key field is visible and positioned after actions
         if self.key_field not in self.visible_columns:
@@ -712,10 +717,20 @@ class JqGridConfigMixin:
         """Get template filters for search options"""
         from django_jqgrid.models import GridFilter
         try:
+            # Get the model
+            model = None
+            if hasattr(self, 'queryset') and self.queryset:
+                model = self.queryset.model
+            elif hasattr(self, 'serializer_class') and hasattr(self.serializer_class.Meta, 'model'):
+                model = self.serializer_class.Meta.model
+            
+            if not model:
+                return {"tmplNames": [], "tmplFilters": [], "tmplIds": []}
+            
             # Get user-specific filters
             user_filters = GridFilter.objects.filter(
                 key='tmplFilters',
-                table=ContentType.objects.get_for_model(self.queryset.model),
+                table=ContentType.objects.get_for_model(model),
                 created_by=self.request.user,
                 is_global=False
             ).values('id', 'name', 'value')
@@ -723,7 +738,7 @@ class JqGridConfigMixin:
             # Get global filters
             global_filters = GridFilter.objects.filter(
                 key='tmplFilters',
-                table=ContentType.objects.get_for_model(self.queryset.model),
+                table=ContentType.objects.get_for_model(model),
                 is_global=True
             ).values('id', 'name', 'value')
 
@@ -782,7 +797,7 @@ class JqGridConfigMixin:
                 if key not in response_data:
                     response_data[key] = value
 
-        return Response(response_data)
+        return Response({'data': response_data})
 
     @action(methods=['post'], detail=False, url_path='crud')
     def crud(self, request, *args, **kwargs):

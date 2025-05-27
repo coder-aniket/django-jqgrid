@@ -208,3 +208,6 @@ local_settings.py
 staticfiles/
 static_root/
 media_root/
+# PyPI tokens
+.pypi_tokens.conf
+/.pypi_tokens.conf.example

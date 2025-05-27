@@ -47,6 +47,26 @@ def get_model_urls():
         
         path('<str:app_name>/<str:model_name>/config/', 
              get_grid_config, name='model-config'),
+        
+        path('<str:app_name>/<str:model_name>/jqgrid_config/', 
+             JqGridModelViewSet.as_view({
+                 'get': 'jqgrid_config'
+             }), name='model-jqgrid-config'),
+        
+        path('<str:app_name>/<str:model_name>/dropdown/', 
+             JqGridModelViewSet.as_view({
+                 'get': 'dropdown'
+             }), name='model-dropdown'),
+        
+        path('<str:app_name>/<str:model_name>/<int:pk>/dropdown_pk/', 
+             JqGridModelViewSet.as_view({
+                 'get': 'dropdown_pk'
+             }), name='model-dropdown-pk'),
+        
+        path('<str:app_name>/<str:model_name>/additional_data_response/', 
+             JqGridModelViewSet.as_view({
+                 'get': 'additional_data_response'
+             }), name='model-additional-data'),
     ]
 
 from .api_views import get_content_type_info

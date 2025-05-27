@@ -307,12 +307,12 @@ function initializeGridForTable(tableInstance) {
         method: 'GET',
         dataType: 'json',
         success: function(response) {
-            if (!response || !response.data) {
+            if (!response || !response.jqgrid_options) {
                 utils.notify('error', 'Invalid grid configuration received from server.', tableInstance);
                 return;
             }
 
-            const gridConfig = response.data;
+            const gridConfig = response;
 
             // Set grid title if present in config
             if (gridConfig.jqgrid_options.caption) {
