@@ -1,6 +1,6 @@
 # Django JQGrid - Easy jqGrid integration for Django
 # Version information
-__version__ = "1.0.3"
+__version__ = "1.0.31"
 
 # Lazy imports to avoid AppRegistryNotReady errors
 def __getattr__(name):
