@@ -193,24 +193,7 @@ class JqGridConfigMixin:
             }
         },
         "navButtonAdd": [
-            {
-                "selector": "#jqGridPager",
-                "button": {
-                    "caption": "Export",
-                    "title": "Export Data",
-                    "buttonicon": "fa fa-download",
-                    "onClickButton": "handleExport"
-                }
-            },
-            {
-                "selector": "#jqGridPager",
-                "button": {
-                    "caption": "Import",
-                    "title": "Import Data",
-                    "buttonicon": "fa fa-upload",
-                    "onClickButton": "handleImport"
-                }
-            }
+            # Custom navigation buttons can be added here
         ]
     }
     DEFAULT_METHOD_OPTIONS = JQGRID_DEFAULT_METHOD_OPTIONS  # Replace with get_setting() if needed
@@ -267,11 +250,7 @@ class JqGridConfigMixin:
             'has_highlight_rules': bool(getattr(self, 'highlight_rules', {}))
         })
 
-        # Add import/export configurations if available
-        if hasattr(self, 'import_config'):
-            self.additional_data['import_config'] = self.import_config
-        if hasattr(self, 'export_config'):
-            self.additional_data['export_config'] = self.export_config
+        # Additional configurations can be added here if needed
 
         # Add key_field to additional_data
         self.additional_data.update({'key_field': self.key_field})

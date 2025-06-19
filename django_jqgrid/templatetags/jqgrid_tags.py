@@ -40,9 +40,6 @@ def jqgrid_dependencies():
 
         # jQuery UI and dependencies
         f'<script src="{static("django_jqgrid/plugins/jquery-ui/jquery-ui.min.js")}"></script>',
-
-        # XLSX support for import/export
-        f'<script src="{static("django_jqgrid/plugins/xlsx/xlsx.full.min.js")}"></script>',
     ]
     return mark_safe('\n'.join(js))
 
@@ -63,9 +60,9 @@ def jqgrid_js():
         f'<script src="{static("django_jqgrid/plugins/jqGrid/plugins/jquery.tablednd.js")}"></script>',
 
         # Our custom jqGrid modules
+        f'<script src="{static("django_jqgrid/js/jqgrid-security.js")}"></script>',
         f'<script src="{static("django_jqgrid/js/jqgrid-config.js")}"></script>',
         f'<script src="{static("django_jqgrid/js/jqgrid-core.js")}"></script>',
-        f'<script src="{static("django_jqgrid/js/jqgrid-import-export.js")}"></script>',
         # f'<script src="{static("django_jqgrid/js/jqgrid-integration.js")}"></script>'
     ]
     return mark_safe('\n'.join(js))
@@ -75,7 +72,7 @@ def jqgrid_js():
 def jqgrid(grid_id, app_name, model_name, grid_title=None,
            custom_formatters=None, custom_buttons=None, custom_bulk_actions=None,
            on_grid_complete=None, on_select_row=None, on_select_all=None,
-           on_init_complete=None, extra_options=None, include_import_export=True):
+           on_init_complete=None, extra_options=None):
     """
     Renders a jqGrid with the specified options.
     
@@ -92,7 +89,6 @@ def jqgrid(grid_id, app_name, model_name, grid_title=None,
         on_select_all (str, optional): JavaScript function to call when all rows are selected
         on_init_complete (str, optional): JavaScript function to call when grid initialization completes
         extra_options (str, optional): Additional options to pass to initializeTableInstance
-        include_import_export (bool, optional): Whether to include import/export buttons (default: True)
         
     Returns:
         dict: Context for the template rendering
@@ -128,7 +124,6 @@ def jqgrid(grid_id, app_name, model_name, grid_title=None,
         'on_select_all': on_select_all,
         'on_init_complete': on_init_complete,
         'extra_options': extra_options,
-        'include_import_export': include_import_export
     }
 
 

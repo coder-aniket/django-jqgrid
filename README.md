@@ -12,13 +12,14 @@ A Django package for easy integration of jqGrid with automatic configuration, co
 - ⚙️ **Auto-configuration** - Automatically discovers and configures Django models
 - 🚀 **Full CRUD Support** - Create, Read, Update, Delete operations out of the box
 - 🔍 **Advanced Filtering** - Built-in search and filtering capabilities
-- 📊 **Import/Export** - Excel and CSV import/export functionality
 - 🎨 **Highly Customizable** - Extensive configuration options
 - ⚡ **Performance Optimized** - Query optimization and caching support
-- 🔒 **Security** - CSRF protection and field-level permissions
+- 🔒 **Advanced Security** - Multiple authentication methods (Session, Token, JWT), CSRF protection, field-level permissions
 - 🗄️ **Multi-database** - Support for multiple databases
-- 📱 **Responsive** - Mobile-friendly grid layouts
+- 📱 **Responsive** - Mobile-friendly grid layouts with FontAwesome icons
 - 🔧 **DRY Principle** - Reusable components and mixins
+- 🛡️ **Flexible Authentication** - Session-based, Token-based, or JWT authentication with auto-detection
+- 📋 **Audit Logging** - Track user actions and security events
 
 ## Table of Contents
 
@@ -27,6 +28,7 @@ A Django package for easy integration of jqGrid with automatic configuration, co
 - [Configuration](#configuration)
 - [Basic Usage](#basic-usage)
 - [Advanced Usage](#advanced-usage)
+- [Security Configuration](#security-configuration)
 - [Customization](#customization)
 - [API Reference](#api-reference)
 - [Examples](#examples)
@@ -34,6 +36,12 @@ A Django package for easy integration of jqGrid with automatic configuration, co
 - [License](#license)
 
 ## Installation
+
+### Requirements
+
+- Python 3.8+
+- Django 3.0+
+- Django REST Framework 3.12+
 
 ### Using pip
 
@@ -53,6 +61,15 @@ poetry add django-jqgrid
 git clone https://github.com/coder-aniket/django-jqgrid.git
 cd django-jqgrid
 pip install -e .
+
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run the example project
+cd example/example_project
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 ```
 
 ## Quick Start
@@ -104,7 +121,7 @@ python manage.py discover_models
 </html>
 ```
 
-That's it! You now have a fully functional data grid with CRUD operations.
+That's it! You now have a fully functional data grid with CRUD operations!
 
 ## Configuration
 
@@ -115,8 +132,6 @@ Add to your `settings.py`:
 ```python
 JQGRID_CONFIG = {
     'DEFAULT_ROWS_PER_PAGE': 20,
-    'ENABLE_EXCEL_EXPORT': True,
-    'ENABLE_CSV_EXPORT': True,
     'ENABLE_FILTERING': True,
     'ENABLE_CRUD_OPERATIONS': True,
     'DATE_FORMAT': '%Y-%m-%d',
@@ -177,8 +192,6 @@ class Product(JQGridMixin, models.Model):
         exclude_fields = ['id', 'created_at']
         
         # Enable features
-        enable_excel_export = True
-        enable_csv_export = True
         enable_crud = True
         enable_search = True
 ```
@@ -330,6 +343,127 @@ class ProductGridView(JQGridView):
         
         return config
 ```
+
+## Security Configuration
+
+Django JQGrid provides comprehensive security features with flexible authentication methods.
+
+### Quick Security Setup
+
+Add the security context processor to your Django settings:
+
+```python
+# settings.py
+TEMPLATES = [
+    {
+        'OPTIONS': {
+            'context_processors': [
+                # ... other context processors
+                'django_jqgrid.context_processors.jqgrid_security',
+            ],
+        },
+    },
+]
+```
+
+### Authentication Methods
+
+**Session-Based (Default):**
+```python
+JQGRID_SECURITY_CONFIG = {
+    'auth_method': 'session',
+    'csrf_enabled': True,
+    'require_authentication': True,
+}
+```
+
+**Token-Based:**
+```python
+JQGRID_SECURITY_CONFIG = {
+    'auth_method': 'token',
+    'token_enabled': True,
+    'token_type': 'Bearer',
+    'csrf_enabled': False,
+}
+```
+
+**JWT Authentication:**
+```python
+JQGRID_SECURITY_CONFIG = {
+    'auth_method': 'jwt',
+    'jwt_enabled': True,
+    'jwt_auto_refresh': True,
+    'csrf_enabled': False,
+}
+```
+
+**Auto-Detection:**
+```python
+JQGRID_SECURITY_CONFIG = {
+    'auth_method': 'auto',  # Detects JWT > Token > Session
+}
+```
+
+### Field-Level Permissions
+
+Control field visibility based on user permissions:
+
+```python
+class SecureProductView(JQGridView):
+    model = Product
+    
+    def get_column_config(self):
+        config = super().get_column_config()
+        user = self.request.user
+        
+        # Hide sensitive fields
+        if not user.has_perm('products.view_cost'):
+            config['cost']['hidden'] = True
+        
+        # Make fields read-only
+        if not user.has_perm('products.change_price'):
+            config['price']['editable'] = False
+        
+        return config
+```
+
+### JavaScript Security API
+
+```javascript
+// Set authentication tokens
+window.jqGridSecurity.setAuthToken('your-token');
+window.jqGridSecurity.setJWTTokens('access-token', 'refresh-token');
+
+// Custom security callbacks
+window.jqGridSecurity.updateConfig({
+    callbacks: {
+        onUnauthorized: function() {
+            window.location.href = '/login/';
+        }
+    }
+});
+```
+
+### Security Profiles
+
+Use predefined security profiles:
+
+```python
+from django_jqgrid.security import apply_security_profile
+
+# High security for production
+apply_security_profile('high_security')
+
+# Token-based API
+apply_security_profile('token_auth')
+
+# Public access (read-only)
+apply_security_profile('public_access')
+```
+
+For detailed security documentation, see:
+- [Security Guide](SECURITY_GUIDE.md) - Complete security configuration
+- [Security Examples](SECURITY_EXAMPLES.md) - Practical implementation examples
 
 ## Customization
 
@@ -831,12 +965,7 @@ $.ajaxSetup({
    - Verify URLs are correctly configured
    - Check Django debug toolbar for query issues
 
-2. **Export not working**
-   - Ensure `django_jqgrid` is in INSTALLED_APPS
-   - Check that `MEDIA_ROOT` is configured
-   - Verify user has export permissions
-
-3. **Editing not saving**
+2. **Editing not saving**
    - Check CSRF token is included
    - Verify model has proper permissions
    - Check for validation errors in response

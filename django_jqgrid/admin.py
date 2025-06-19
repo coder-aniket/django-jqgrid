@@ -1,17 +1,18 @@
 from django.contrib import admin
 from django import forms
-from jsoneditor.forms import JSONEditor
 
 from django_jqgrid.models import GridFilter
 
 
 class GridFilterForm(forms.ModelForm):
+    value = forms.JSONField(
+        widget=forms.Textarea(attrs={'rows': 10, 'cols': 80}),
+        help_text="Enter JSON data for the filter value"
+    )
+    
     class Meta:
         model = GridFilter
         fields = '__all__'
-        widgets = {
-            'value': JSONEditor()
-        }
 
 @admin.register(GridFilter)
 class GridFilterAdmin(admin.ModelAdmin):

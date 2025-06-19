@@ -5,6 +5,35 @@ All notable changes to django-jqgrid will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.32] - 2024-12-18
+
+### Added
+- Enhanced import/export functionality with background processing
+- FontAwesome icon library integration
+- Comprehensive API documentation
+- Advanced features documentation
+- Installation guide with demo project setup
+- Automated setup scripts for demo project
+- REST Framework integration improvements
+- Better error handling and validation
+- Enhanced JavaScript API with hooks system
+- Improved documentation and examples
+
+### Enhanced
+- Import/Export UI with better user experience
+- Column mapping interface for imports
+- Export format selection with templates
+- Background task processing for large operations
+- Progress tracking for import/export operations
+- Better mobile responsiveness
+- Improved security features
+
+### Fixed
+- Missing REST Framework configuration in demo project
+- Icon display issues in import/export buttons
+- JavaScript error handling improvements
+- Template rendering optimizations
+
 ## [1.0.0] - 2024-01-15
 
 ### Added

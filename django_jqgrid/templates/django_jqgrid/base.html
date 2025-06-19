@@ -29,6 +29,42 @@
     <!-- jqGrid JavaScript -->
     {% jqgrid_js %}
     
+    <!-- Security Configuration -->
+    <script>
+        // Global security configuration from Django settings
+        window.JQGRID_SECURITY_CONFIG = {
+            authMethod: '{{ jqgrid_security.auth_method|default:"session" }}',
+            csrf: {
+                enabled: {{ jqgrid_security.csrf_enabled|default:"true"|yesno:"true,false" }},
+                tokenName: '{{ jqgrid_security.csrf_token_name|default:"csrftoken" }}',
+                headerName: '{{ jqgrid_security.csrf_header_name|default:"X-CSRFToken" }}'
+            },
+            token: {
+                enabled: {{ jqgrid_security.token_enabled|default:"false"|yesno:"true,false" }},
+                type: '{{ jqgrid_security.token_type|default:"Bearer" }}',
+                headerName: '{{ jqgrid_security.token_header_name|default:"Authorization" }}',
+                tokenKey: '{{ jqgrid_security.token_key|default:"auth_token" }}',
+                storage: '{{ jqgrid_security.token_storage|default:"localStorage" }}'
+            },
+            jwt: {
+                enabled: {{ jqgrid_security.jwt_enabled|default:"false"|yesno:"true,false" }},
+                headerName: '{{ jqgrid_security.jwt_header_name|default:"Authorization" }}',
+                tokenKey: '{{ jqgrid_security.jwt_token_key|default:"jwt_token" }}',
+                storage: '{{ jqgrid_security.jwt_storage|default:"localStorage" }}',
+                refreshTokenKey: '{{ jqgrid_security.jwt_refresh_key|default:"refresh_token" }}',
+                autoRefresh: {{ jqgrid_security.jwt_auto_refresh|default:"true"|yesno:"true,false" }},
+                refreshEndpoint: '{{ jqgrid_security.jwt_refresh_endpoint|default:"/api/auth/refresh/" }}'
+            },
+            session: {
+                enabled: {{ jqgrid_security.session_enabled|default:"true"|yesno:"true,false" }},
+                checkEndpoint: '{{ jqgrid_security.session_check_endpoint|default:"/api/auth/check/" }}',
+                loginRedirect: '{{ jqgrid_security.login_redirect|default:"/login/" }}',
+                autoCheck: {{ jqgrid_security.session_auto_check|default:"false"|yesno:"true,false" }},
+                checkInterval: {{ jqgrid_security.session_check_interval|default:"300000" }}
+            }
+        };
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

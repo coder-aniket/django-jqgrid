@@ -207,28 +207,6 @@ class JqGridModelViewSet(JqGridConfigMixin, JqGridBulkActionMixin, viewsets.Mode
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    @action(detail=False, methods=['get'])
-    def export(self, request, *args, **kwargs):
-        """Export grid data"""
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        
-        export_format = request.GET.get('format', 'json')
-        
-        if export_format == 'json':
-            return Response(serializer.data)
-        
-        # Add CSV, Excel export as needed
-        return Response(
-            {'error': 'Unsupported format'}, 
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
-    @action(detail=False, methods=['post'])
-    def import_data(self, request, *args, **kwargs):
-        """Import data into grid"""
-        # Implementation for data import
-        return Response({'message': 'Import functionality not yet implemented'})
     
     @action(detail=False, methods=['get'])
     def dropdown(self, request, *args, **kwargs):

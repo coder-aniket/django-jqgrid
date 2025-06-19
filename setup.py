@@ -86,7 +86,6 @@ setup(
     install_requires=[
         'Django>=3.0',
         'djangorestframework>=3.12',
-        'django-jsoneditor>=0.2.0',
     ],
     extras_require={
         'dev': [

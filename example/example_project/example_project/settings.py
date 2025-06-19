@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Third-party apps
+    'rest_framework',
     'django_jqgrid',
     
     # Local apps
@@ -62,6 +63,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django_jqgrid.context_processors.jqgrid_security',
+                'django_jqgrid.context_processors.jqgrid_config',
             ],
         },
     },
@@ -117,14 +120,40 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Django REST Framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # For demo purposes
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 25
+}
 
 # django-jqgrid configuration
 JQGRID_CONFIG = {
-    'ROW_NUM': 20,
-    'ROW_LIST': [10, 20, 30, 50, 100],
-    'GRID_HEIGHT': 450,
-    'MULTISELECT': True,
-    'ENABLE_IMPORT_EXPORT': True,
-    'DATE_FORMAT': 'Y-m-d',
-    'DATETIME_FORMAT': 'Y-m-d H:i:s',
+    'DEFAULT_ROWS_PER_PAGE': 20,
+    'ENABLE_FILTERING': True,
+    'ENABLE_CRUD_OPERATIONS': True,
+}
+
+# Django JQGrid Security Configuration
+JQGRID_SECURITY_CONFIG = {
+    # For demo purposes - session-based auth with optional features
+    'auth_method': 'session',
+    'csrf_enabled': True,
+    'require_authentication': False,  # Allow anonymous access for demo
+    'session_enabled': True,
+    'session_auto_check': False,  # Disabled for demo
+    'field_level_permissions': True,
+    'audit_log_enabled': False,  # Disabled for demo
+    
+    # Custom headers for demo
+    'custom_headers': {
+        'X-API-Version': '1.0',
+        'X-Client-Type': 'django-jqgrid-demo'
+    }
 }
