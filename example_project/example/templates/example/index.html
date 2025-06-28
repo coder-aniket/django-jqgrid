@@ -1,0 +1,186 @@
+{% extends 'example/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Django jqGrid Examples{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-table text-primary"></i>
+                Django jqGrid Examples
+            </h1>
+            <p class="lead">
+                Comprehensive examples showcasing the power and flexibility of django-jqgrid
+            </p>
+            <p class="text-muted">
+                Explore various grid configurations, features, and integration patterns
+            </p>
+        </div>
+    </div>
+
+    <!-- Features Overview -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-bolt fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">High Performance</h5>
+                    <p class="card-text">Optimized for handling large datasets with efficient pagination and server-side processing.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-cogs fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Highly Configurable</h5>
+                    <p class="card-text">Extensive customization options for columns, formatters, editors, and behaviors.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-mobile-alt fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Responsive Design</h5>
+                    <p class="card-text">Mobile-friendly grids that adapt to different screen sizes and devices.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Examples Grid -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-list-ul"></i>
+                Example Grids
+            </h2>
+        </div>
+        
+        {% for example in examples %}
+        <div class="col-lg-6 mb-4">
+            <div class="card example-card h-100">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-table me-2 text-primary"></i>
+                    <h5 class="card-title mb-0">{{ example.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ example.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'example:'|add:example.url %}" class="btn btn-primary">
+                            <i class="fas fa-eye me-1"></i>
+                            View Example
+                        </a>
+                        <small class="text-muted">
+                            <i class="fas fa-code me-1"></i>
+                            Interactive Demo
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Quick Start Guide -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-rocket"></i>
+                        Quick Start Guide
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>1. Installation</h5>
+                            <pre class="bg-light p-3 rounded"><code>pip install django-jqgrid</code></pre>
+                            
+                            <h5>2. Add to INSTALLED_APPS</h5>
+                            <pre class="bg-light p-3 rounded"><code>INSTALLED_APPS = [
+    # ... your other apps
+    'rest_framework',
+    'django_jqgrid',
+]</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>3. Basic Usage</h5>
+                            <pre class="bg-light p-3 rounded"><code>{% templatetag openvariable %} load jqgrid_tags {% templatetag closevariable %}
+
+{% templatetag openvariable %} jqgrid "myGrid" api_url="/api/data/" {% templatetag closevariable %}</code></pre>
+                            
+                            <h5>4. Configure ViewSet</h5>
+                            <pre class="bg-light p-3 rounded"><code>class MyModelViewSet(viewsets.ModelViewSet):
+    queryset = MyModel.objects.all()
+    serializer_class = MyModelSerializer</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="https://github.com/yourusername/django-jqgrid" class="btn btn-outline-primary" target="_blank">
+                            <i class="fab fa-github me-1"></i>
+                            View Documentation
+                        </a>
+                        <a href="{% url 'example:products' %}" class="btn btn-primary ms-2">
+                            <i class="fas fa-play me-1"></i>
+                            Start with Products Example
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample Data Notice -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading">
+                    <i class="fas fa-info-circle"></i>
+                    Sample Data
+                </h4>
+                <p>
+                    These examples use sample data to demonstrate functionality. 
+                    In a real application, you would connect to your own models and data sources.
+                </p>
+                <hr>
+                <p class="mb-0">
+                    <strong>Note:</strong> All examples are read-only demonstrations. 
+                    Edit operations are simulated and do not persist data.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.example-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.example-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.display-4 {
+    font-weight: 300;
+}
+
+pre {
+    font-size: 0.9em;
+}
+
+.alert-info {
+    border-left: 4px solid #0dcaf0;
+}
+</style>
+{% endblock %}

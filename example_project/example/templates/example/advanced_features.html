@@ -1,0 +1,64 @@
+{% extends 'example/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Django jqGrid Examples{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h2">
+                <i class="fas fa-cogs text-primary"></i>
+                {{ title }}
+            </h1>
+            <p class="text-muted">{{ description }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'example:index' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Examples
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for feature in features %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-star"></i>
+                        {{ feature }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Advanced jqGrid feature demonstration and implementation examples.</p>
+                    <button class="btn btn-outline-primary" disabled>
+                        <i class="fas fa-code"></i>
+                        View Code
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h4 class="alert-heading">
+                    <i class="fas fa-lightbulb"></i>
+                    Coming Soon
+                </h4>
+                <p>Advanced features and customization examples are under development. Check back soon for:</p>
+                <ul>
+                    <li>Custom cell renderers and formatters</li>
+                    <li>Dynamic grid configuration</li>
+                    <li>Event handling examples</li>
+                    <li>Integration with other libraries</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

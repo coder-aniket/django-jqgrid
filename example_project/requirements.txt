@@ -1,0 +1,24 @@
+# Django and core dependencies
+Django>=4.2,<5.0
+djangorestframework>=3.14.0
+django-filter>=23.2
+
+# Add the parent django-jqgrid package
+# In development, use: pip install -e ..
+# In production, use: django-jqgrid
+
+# Optional but recommended for the example project
+Pillow>=10.0.0  # For ImageField support
+python-decouple>=3.8  # For environment variables
+
+# Development dependencies (optional)
+django-debug-toolbar>=4.1.0
+django-extensions>=3.2.3
+
+# Database drivers (optional)
+# psycopg2-binary>=2.9.7  # PostgreSQL
+# mysqlclient>=2.2.0  # MySQL
+
+# For Excel import/export features (optional)
+openpyxl>=3.1.2
+xlsxwriter>=3.1.2

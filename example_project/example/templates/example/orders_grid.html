@@ -1,0 +1,87 @@
+{% extends 'example/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Django jqGrid Examples{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h2">
+                <i class="fas fa-shopping-cart text-primary"></i>
+                {{ title }}
+            </h1>
+            <p class="text-muted">{{ description }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'example:index' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Examples
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Order Tracking</h5>
+                </div>
+                <div class="card-body">
+                    <table id="{{ grid_id }}"></table>
+                    <div id="{{ grid_id }}Pager"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#{{ grid_id }}').jqGrid({
+        url: '{{ api_url }}',
+        datatype: 'json',
+        mtype: 'GET',
+        colNames: ['ID', 'Order #', 'Customer', 'Status', 'Order Date', 'Total', 'Tracking'],
+        colModel: [
+            {name: 'id', index: 'id', width: 60, sortable: true, hidden: true, key: true},
+            {name: 'order_number', index: 'order_number', width: 120, sortable: true},
+            {name: 'customer_name', index: 'customer__last_name', width: 150, sortable: true},
+            {
+                name: 'status_display', 
+                index: 'status', 
+                width: 100, 
+                sortable: true, 
+                align: 'center',
+                formatter: function(cellvalue, options, rowObject) {
+                    var badgeClass = 'secondary';
+                    if (cellvalue === 'Pending') badgeClass = 'info';
+                    else if (cellvalue === 'Processing') badgeClass = 'warning';
+                    else if (cellvalue === 'Shipped') badgeClass = 'primary';
+                    else if (cellvalue === 'Delivered') badgeClass = 'success';
+                    else if (cellvalue === 'Cancelled') badgeClass = 'danger';
+                    return '<span class="badge bg-' + badgeClass + '">' + cellvalue + '</span>';
+                }
+            },
+            {name: 'order_date', index: 'order_date', width: 120, sortable: true, formatter: 'date'},
+            {name: 'formatted_total', index: 'total_amount', width: 100, sortable: true, align: 'right'},
+            {name: 'tracking_number', index: 'tracking_number', width: 150, sortable: false}
+        ],
+        pager: '#{{ grid_id }}Pager',
+        rowNum: 25,
+        sortname: 'order_date',
+        sortorder: 'desc',
+        viewrecords: true,
+        autowidth: true,
+        height: 400,
+        multiselect: true
+    });
+    
+    $('#{{ grid_id }}').jqGrid('navGrid', '#{{ grid_id }}Pager', {
+        edit: false, add: false, del: false, search: true, refresh: true
+    });
+});
+</script>
+{% endblock %}

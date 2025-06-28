@@ -1,0 +1,1 @@
+# Example app for demonstrating django_jqgrid functionality

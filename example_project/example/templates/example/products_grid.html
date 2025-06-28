@@ -1,0 +1,275 @@
+{% extends 'example/base.html' %}
+{% load static %}
+{% load jqgrid_tags %}
+
+{% block title %}{{ title }} - Django jqGrid Examples{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h2">
+                <i class="fas fa-box text-primary"></i>
+                {{ title }}
+            </h1>
+            <p class="text-muted">{{ description }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#featuresModal">
+                <i class="fas fa-info-circle"></i>
+                View Features
+            </button>
+            <a href="{% url 'example:index' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Examples
+            </a>
+        </div>
+    </div>
+
+    <!-- Grid Toolbar -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <button type="button" class="btn btn-success btn-sm" onclick="refreshGrid()">
+                                <i class="fas fa-refresh"></i>
+                                Refresh
+                            </button>
+                            <button type="button" class="btn btn-info btn-sm" onclick="toggleSearch()">
+                                <i class="fas fa-search"></i>
+                                Toggle Search
+                            </button>
+                        </div>
+                        <div>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                Click column headers to sort • Use search toolbar for filtering
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <!-- jqGrid will be rendered here -->
+                    <table id="{{ grid_id }}"></table>
+                    <div id="{{ grid_id }}Pager"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Statistics -->
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-primary" id="totalProducts">-</h5>
+                    <p class="card-text">Total Products</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-success" id="inStockProducts">-</h5>
+                    <p class="card-text">In Stock</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-warning" id="lowStockProducts">-</h5>
+                    <p class="card-text">Low Stock</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-danger" id="outOfStockProducts">-</h5>
+                    <p class="card-text">Out of Stock</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Modal -->
+<div class="modal fade" id="featuresModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-star"></i>
+                    Products Grid Features
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-check text-success"></i> Core Features</h6>
+                        <ul class="list-unstyled">
+                            {% for feature in features %}
+                            <li><i class="fas fa-circle text-primary" style="font-size: 0.5em;"></i> {{ feature }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cog text-info"></i> Technical Details</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-circle text-primary" style="font-size: 0.5em;"></i> Server-side pagination</li>
+                            <li><i class="fas fa-circle text-primary" style="font-size: 0.5em;"></i> AJAX data loading</li>
+                            <li><i class="fas fa-circle text-primary" style="font-size: 0.5em;"></i> Dynamic filtering</li>
+                            <li><i class="fas fa-circle text-primary" style="font-size: 0.5em;"></i> Multi-column sorting</li>
+                            <li><i class="fas fa-circle text-primary" style="font-size: 0.5em;"></i> Responsive design</li>
+                            <li><i class="fas fa-circle text-primary" style="font-size: 0.5em;"></i> Custom formatters</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialize the products grid
+    var gridConfig = {
+        url: '{{ api_url }}',
+        datatype: 'json',
+        mtype: 'GET',
+        colNames: [
+            'ID', 'Product Name', 'SKU', 'Price', 'Stock', 'Stock Status', 
+            'Status', 'Category', 'Featured'
+        ],
+        colModel: [
+            {name: 'id', index: 'id', width: 60, sortable: true, hidden: true, key: true},
+            {name: 'name', index: 'name', width: 200, sortable: true},
+            {name: 'sku', index: 'sku', width: 100, sortable: true},
+            {name: 'formatted_price', index: 'price', width: 100, sortable: true, align: 'right'},
+            {name: 'stock_quantity', index: 'stock_quantity', width: 80, sortable: true, align: 'center'},
+            {
+                name: 'stock_status', 
+                index: 'stock_status', 
+                width: 120, 
+                sortable: false, 
+                align: 'center',
+                formatter: function(cellvalue, options, rowObject) {
+                    var badgeClass = 'secondary';
+                    if (cellvalue === 'In Stock') badgeClass = 'success';
+                    else if (cellvalue === 'Low Stock') badgeClass = 'warning';
+                    else if (cellvalue === 'Out of Stock') badgeClass = 'danger';
+                    return '<span class="badge bg-' + badgeClass + '">' + cellvalue + '</span>';
+                }
+            },
+            {
+                name: 'status_display', 
+                index: 'status', 
+                width: 100, 
+                sortable: true, 
+                align: 'center',
+                formatter: function(cellvalue, options, rowObject) {
+                    var badgeClass = 'secondary';
+                    if (cellvalue === 'Active') badgeClass = 'success';
+                    else if (cellvalue === 'Draft') badgeClass = 'warning';
+                    else if (cellvalue === 'Discontinued') badgeClass = 'danger';
+                    return '<span class="badge bg-' + badgeClass + '">' + cellvalue + '</span>';
+                }
+            },
+            {name: 'category_name', index: 'category__name', width: 120, sortable: true},
+            {
+                name: 'is_featured', 
+                index: 'is_featured', 
+                width: 80, 
+                sortable: true, 
+                align: 'center',
+                formatter: function(cellvalue, options, rowObject) {
+                    return cellvalue ? 
+                        '<i class="fas fa-star text-warning" title="Featured"></i>' : 
+                        '<i class="fas fa-star text-muted" title="Not Featured"></i>';
+                }
+            }
+        ],
+        pager: '#{{ grid_id }}Pager',
+        rowNum: 25,
+        rowList: [10, 25, 50, 100],
+        sortname: 'name',
+        sortorder: 'asc',
+        viewrecords: true,
+        caption: 'Products Database',
+        autowidth: true,
+        height: 500,
+        multiselect: true,
+        rownumbers: true,
+        loadComplete: function() {
+            updateStatistics();
+        },
+        gridComplete: function() {
+            // Add search toolbar
+            $('#{{ grid_id }}').jqGrid('filterToolbar', {
+                searchOnEnter: false,
+                enableClear: true
+            });
+        }
+    };
+    
+    // Initialize the grid
+    $('#{{ grid_id }}').jqGrid(gridConfig);
+    
+    // Navigation bar
+    $('#{{ grid_id }}').jqGrid('navGrid', '#{{ grid_id }}Pager', {
+        edit: false,
+        add: false,
+        del: false,
+        search: true,
+        refresh: true
+    });
+});
+
+// Utility functions
+function refreshGrid() {
+    $('#{{ grid_id }}').trigger('reloadGrid');
+}
+
+function toggleSearch() {
+    $('#{{ grid_id }}')[0].toggleToolbar();
+}
+
+function updateStatistics() {
+    // Get all row data
+    var allRows = $('#{{ grid_id }}').jqGrid('getRowData');
+    var totalProducts = allRows.length;
+    var inStock = 0, lowStock = 0, outOfStock = 0;
+    
+    allRows.forEach(function(row) {
+        var stockStatus = $(row.stock_status).text();
+        if (stockStatus === 'In Stock') inStock++;
+        else if (stockStatus === 'Low Stock') lowStock++;
+        else if (stockStatus === 'Out of Stock') outOfStock++;
+    });
+    
+    // Update statistics display
+    $('#totalProducts').text(totalProducts);
+    $('#inStockProducts').text(inStock);
+    $('#lowStockProducts').text(lowStock);
+    $('#outOfStockProducts').text(outOfStock);
+}
+</script>
+{% endblock %}
