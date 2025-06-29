@@ -24,10 +24,12 @@ urlpatterns = [
     path('orders/', views.orders_grid, name='orders'),
     path('categories/', views.categories_grid, name='categories'),
     path('advanced/', views.advanced_features, name='advanced'),
+    path('all-features/', views.all_features, name='all_features'),
     
     # API endpoints for jqGrid data
     path('api/', include(router.urls)),
     
     # Utility endpoints
     path('api/create-sample-data/', views.create_sample_data, name='create_sample_data'),
+    path('api/advanced-demo-data/', views.advanced_demo_data, name='advanced_demo_data'),
 ]

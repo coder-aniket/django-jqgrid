@@ -1,0 +1,153 @@
+{% extends 'example/base.html' %}
+{% load static %}
+
+{% block title %}All Features Example - Django jqGrid{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'django_jqgrid/plugins/jqGrid/css/ui.jqgrid-bootstrap5.css' %}">
+<link rel="stylesheet" href="{% static 'django_jqgrid/plugins/jqGrid/css/addons/ui.multiselect.css' %}">
+<link rel="stylesheet" href="{% static 'example/css/all-features.css' %}">
+<style>
+    .all-features-grid {
+        margin: 20px 0;
+    }
+    .feature-list {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .feature-list h5 {
+        color: #495057;
+        margin-bottom: 10px;
+    }
+    .feature-list ul {
+        column-count: 3;
+        column-gap: 20px;
+    }
+    .feature-list li {
+        break-inside: avoid;
+        margin-bottom: 5px;
+    }
+    .grid-controls {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .grid-controls button {
+        margin: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h2">
+                <i class="fas fa-layer-group text-primary"></i>
+                All Features Enabled Example
+            </h1>
+            <p class="text-muted">Comprehensive jqGrid demonstration with every feature activated</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'example:index' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Examples
+            </a>
+        </div>
+    </div>
+
+    <!-- Feature List -->
+    <div class="feature-list">
+        <h5><i class="fas fa-check-circle text-success"></i> Enabled Features:</h5>
+        <ul>
+            <li>Multi-select with checkbox</li>
+            <li>Row numbers</li>
+            <li>Inline editing</li>
+            <li>Cell editing</li>
+            <li>Sorting (all columns)</li>
+            <li>Searching/Filtering</li>
+            <li>Grouping</li>
+            <li>SubGrid</li>
+            <li>TreeGrid</li>
+            <li>Frozen columns</li>
+            <li>Column chooser</li>
+            <li>Export (CSV/Excel)</li>
+            <li>Pagination</li>
+            <li>Footer row</li>
+            <li>User data</li>
+            <li>Auto-width</li>
+            <li>Resizable columns</li>
+            <li>Toolbar searching</li>
+            <li>Advanced searching</li>
+            <li>Form editing</li>
+            <li>Navigation bar</li>
+            <li>Context menu</li>
+            <li>Keyboard navigation</li>
+            <li>Touch support</li>
+            <li>RTL support</li>
+            <li>Responsive design</li>
+            <li>Custom formatters</li>
+            <li>Virtual scrolling</li>
+            <li>State persistence</li>
+            <li>Multi-language support</li>
+            <li>Theme support</li>
+        </ul>
+    </div>
+
+    <!-- Grid Controls -->
+    <div class="grid-controls">
+        <h5><i class="fas fa-cog"></i> Grid Controls:</h5>
+        <button class="btn btn-sm btn-primary" onclick="toggleGrouping()">
+            <i class="fas fa-object-group"></i> Toggle Grouping
+        </button>
+        <button class="btn btn-sm btn-success" onclick="addNewRecord()">
+            <i class="fas fa-plus"></i> Add Record
+        </button>
+        <button class="btn btn-sm btn-info" onclick="toggleFrozenColumns()">
+            <i class="fas fa-columns"></i> Toggle Frozen Columns
+        </button>
+        <button class="btn btn-sm btn-warning" onclick="exportGrid('csv')">
+            <i class="fas fa-file-csv"></i> Export CSV
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="clearFilters()">
+            <i class="fas fa-times"></i> Clear Filters
+        </button>
+        <button class="btn btn-sm btn-secondary" onclick="saveGridState()">
+            <i class="fas fa-save"></i> Save State
+        </button>
+        <button class="btn btn-sm btn-secondary" onclick="restoreGridState()">
+            <i class="fas fa-undo"></i> Restore State
+        </button>
+        <button class="btn btn-sm btn-dark" onclick="toggleTheme()">
+            <i class="fas fa-palette"></i> Toggle Theme
+        </button>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="all-features-grid">
+        <table id="allFeaturesGrid"></table>
+        <div id="allFeaturesPager"></div>
+    </div>
+
+    <!-- Context Menu -->
+    <ul id="contextMenu" class="dropdown-menu" style="display:none;position:absolute;">
+        <li><a class="dropdown-item" href="#" onclick="editSelectedRow()"><i class="fas fa-edit"></i> Edit</a></li>
+        <li><a class="dropdown-item" href="#" onclick="deleteSelectedRow()"><i class="fas fa-trash"></i> Delete</a></li>
+        <li><a class="dropdown-item" href="#" onclick="viewSelectedRow()"><i class="fas fa-eye"></i> View</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="#" onclick="duplicateSelectedRow()"><i class="fas fa-copy"></i> Duplicate</a></li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'django_jqgrid/plugins/jqGrid/js/i18n/grid.locale-en.js' %}"></script>
+<script src="{% static 'django_jqgrid/plugins/jqGrid/js/jquery.jqGrid.min.js' %}"></script>
+<script src="{% static 'django_jqgrid/plugins/jqGrid/plugins/grid.addons.js' %}"></script>
+<script src="{% static 'django_jqgrid/plugins/jqGrid/plugins/jquery.contextmenu.js' %}"></script>
+<script src="{% static 'django_jqgrid/plugins/jqGrid/js/addons/ui.multiselect.js' %}"></script>
+<script src="{% static 'example/js/all-features.js' %}"></script>
+{% endblock %}

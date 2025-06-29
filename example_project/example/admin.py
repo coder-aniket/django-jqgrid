@@ -30,7 +30,7 @@ class ProductAdmin(admin.ModelAdmin):
     """Admin interface for Product model."""
     
     list_display = [
-        'name', 'sku', 'formatted_price', 'stock_quantity', 
+        'name', 'sku', 'price', 'formatted_price', 'stock_quantity', 
         'stock_status_badge', 'status', 'category', 'is_featured'
     ]
     list_filter = ['status', 'category', 'is_featured', 'is_digital', 'created_at']
@@ -136,7 +136,7 @@ class OrderAdmin(admin.ModelAdmin):
     """Admin interface for Order model."""
     
     list_display = [
-        'order_number', 'customer', 'status_badge', 'order_date', 
+        'order_number', 'customer', 'status', 'status_badge', 'order_date', 
         'formatted_total', 'item_count'
     ]
     list_filter = ['status', 'order_date', 'shipped_date']

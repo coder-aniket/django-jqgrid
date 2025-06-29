@@ -49,6 +49,11 @@ def index(request):
                 'name': 'Advanced Features',
                 'url': 'advanced',
                 'description': 'Advanced jqGrid features and customizations'
+            },
+            {
+                'name': 'All Features Demo',
+                'url': 'all_features',
+                'description': 'Complete demonstration with every jqGrid feature enabled'
             }
         ]
     }
@@ -131,17 +136,83 @@ def advanced_features(request):
     """Advanced features demonstration page."""
     context = {
         'title': 'Advanced jqGrid Features',
-        'description': 'Demonstration of advanced jqGrid features and customizations.',
+        'description': 'Comprehensive demonstration of advanced jqGrid features, customizations, and interactive grid builder.',
         'features': [
-            'Custom button actions',
-            'Conditional formatting',
-            'Row highlighting',
-            'Custom cell renderers',
-            'Event handling',
-            'Dynamic configuration'
+            {
+                'name': 'Interactive Grid Builder',
+                'description': 'Design and configure jqGrid with live preview and code generation',
+                'icon': 'fas fa-tools',
+                'color': 'primary'
+            },
+            {
+                'name': 'Inline Editing',
+                'description': 'Edit grid data directly within cells with validation and save functionality',
+                'icon': 'fas fa-edit',
+                'color': 'success'
+            },
+            {
+                'name': 'Custom Formatters',
+                'description': 'Create custom cell renderers for progress bars, status indicators, and action buttons',
+                'icon': 'fas fa-paint-brush',
+                'color': 'info'
+            },
+            {
+                'name': 'Dynamic Configuration',
+                'description': 'Change grid behavior, themes, and features dynamically at runtime',
+                'icon': 'fas fa-sliders-h',
+                'color': 'warning'
+            },
+            {
+                'name': 'Event Handling',
+                'description': 'Capture and respond to user interactions with comprehensive event logging',
+                'icon': 'fas fa-bolt',
+                'color': 'danger'
+            },
+            {
+                'name': 'Form Integration',
+                'description': 'Seamlessly integrate jqGrid with Django forms and model validation',
+                'icon': 'fas fa-clipboard-list',
+                'color': 'secondary'
+            }
+        ],
+        'demo_sections': [
+            {
+                'id': 'grid-builder',
+                'title': 'Interactive Grid Builder',
+                'description': 'Design your grid configuration with real-time preview'
+            },
+            {
+                'id': 'inline-editing',
+                'title': 'Inline Editing Demo',
+                'description': 'Demonstrate inline editing capabilities with validation'
+            },
+            {
+                'id': 'custom-formatters',
+                'title': 'Custom Formatters',
+                'description': 'Show various custom cell formatting options'
+            },
+            {
+                'id': 'dynamic-config',
+                'title': 'Dynamic Configuration',
+                'description': 'Change grid settings and appearance on the fly'
+            },
+            {
+                'id': 'event-handling',
+                'title': 'Event Handling',
+                'description': 'Capture and log user interactions with the grid'
+            }
         ]
     }
     return render(request, 'example/advanced_features.html', context)
+
+
+def all_features(request):
+    """All features enabled demonstration page."""
+    context = {
+        'title': 'All Features Enabled',
+        'description': 'Complete jqGrid demonstration with every feature and flag enabled.'
+    }
+    return render(request, 'example/all_features.html', context)
 
 
 # API ViewSets for jqGrid data
@@ -564,12 +635,132 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 # Utility views for demonstration
-@action(detail=False, methods=['post'])
 def create_sample_data(request):
     """Create sample data for demonstration."""
     try:
-        from .models import create_sample_data
-        create_sample_data()
+        from django.contrib.auth.models import User
+        
+        # Create sample categories
+        categories_data = [
+            {'name': 'Electronics', 'description': 'Electronic devices and accessories', 'active': True},
+            {'name': 'Books', 'description': 'Books and educational materials', 'active': True},
+            {'name': 'Clothing', 'description': 'Apparel and fashion items', 'active': True},
+            {'name': 'Home & Garden', 'description': 'Home improvement and garden supplies', 'active': False},
+        ]
+        
+        for cat_data in categories_data:
+            Category.objects.get_or_create(name=cat_data['name'], defaults=cat_data)
+        
+        # Create sample products
+        electronics = Category.objects.get(name='Electronics')
+        books = Category.objects.get(name='Books')
+        clothing = Category.objects.get(name='Clothing')
+        
+        # Get or create a user for created_by field
+        user, created = User.objects.get_or_create(username='demo_user', defaults={
+            'email': 'demo@example.com',
+            'first_name': 'Demo',
+            'last_name': 'User'
+        })
+        
+        products_data = [
+            {'name': 'Laptop Pro', 'sku': 'LPT-001', 'price': 1299.99, 'stock_quantity': 50, 'category': electronics, 'status': 'active', 'is_featured': True, 'created_by': user},
+            {'name': 'Wireless Mouse', 'sku': 'WMS-002', 'price': 29.99, 'stock_quantity': 200, 'category': electronics, 'status': 'active', 'is_featured': False, 'created_by': user},
+            {'name': 'Programming Guide', 'sku': 'PGD-003', 'price': 49.99, 'stock_quantity': 75, 'category': books, 'status': 'active', 'is_featured': True, 'created_by': user},
+            {'name': 'T-Shirt Blue', 'sku': 'TSB-004', 'price': 19.99, 'stock_quantity': 0, 'category': clothing, 'status': 'inactive', 'is_featured': False, 'created_by': user},
+            {'name': 'Smartphone', 'sku': 'SPH-005', 'price': 699.99, 'stock_quantity': 25, 'category': electronics, 'status': 'active', 'is_featured': True, 'created_by': user},
+        ]
+        
+        for prod_data in products_data:
+            Product.objects.get_or_create(sku=prod_data['sku'], defaults=prod_data)
+        
         return JsonResponse({'success': True, 'message': 'Sample data created successfully'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+def advanced_demo_data(request):
+    """Return demo data for advanced features grids."""
+    demo_data = [
+        {
+            'id': 1,
+            'name': 'Product Alpha',
+            'price': 29.99,
+            'stock': 150,
+            'status': 'active',
+            'category': 'Electronics',
+            'progress': 85,
+            'description': 'High-quality electronic device',
+            'created_date': '2024-01-15'
+        },
+        {
+            'id': 2,
+            'name': 'Product Beta',
+            'price': 19.50,
+            'stock': 75,
+            'status': 'inactive',
+            'category': 'Books',
+            'progress': 60,
+            'description': 'Educational material',
+            'created_date': '2024-01-20'
+        },
+        {
+            'id': 3,
+            'name': 'Product Gamma',
+            'price': 45.00,
+            'stock': 0,
+            'status': 'pending',
+            'category': 'Clothing',
+            'progress': 30,
+            'description': 'Fashion item',
+            'created_date': '2024-01-25'
+        },
+        {
+            'id': 4,
+            'name': 'Product Delta',
+            'price': 12.99,
+            'stock': 200,
+            'status': 'active',
+            'category': 'Electronics',
+            'progress': 95,
+            'description': 'Accessories and parts',
+            'created_date': '2024-02-01'
+        },
+        {
+            'id': 5,
+            'name': 'Product Epsilon',
+            'price': 8.75,
+            'stock': 25,
+            'status': 'active',
+            'category': 'Books',
+            'progress': 70,
+            'description': 'Reference material',
+            'created_date': '2024-02-05'
+        }
+    ]
+    
+    # Handle jqGrid parameters
+    page = int(request.GET.get('page', 1))
+    rows = int(request.GET.get('rows', 10))
+    sort_field = request.GET.get('sidx', 'id')
+    sort_order = request.GET.get('sord', 'asc')
+    
+    # Simple sorting
+    reverse = sort_order == 'desc'
+    demo_data.sort(key=lambda x: x.get(sort_field, 0), reverse=reverse)
+    
+    # Pagination
+    total_records = len(demo_data)
+    total_pages = (total_records + rows - 1) // rows
+    start = (page - 1) * rows
+    end = start + rows
+    page_data = demo_data[start:end]
+    
+    response = {
+        'page': page,
+        'total': total_pages,
+        'records': total_records,
+        'rows': page_data
+    }
+    
+    return JsonResponse(response)

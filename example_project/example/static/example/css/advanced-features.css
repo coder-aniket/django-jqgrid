@@ -1,0 +1,626 @@
+/**
+ * Advanced Features CSS for django-jqgrid Examples
+ * Enhanced styling for interactive demos and grid builder
+ */
+
+/* Feature Demo Containers */
+.feature-demo {
+    transition: box-shadow 0.3s ease;
+}
+
+.feature-demo:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.demo-header h3 {
+    font-weight: 600;
+}
+
+.demo-header p {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* Grid Builder Specific Styles */
+.grid-builder {
+    position: relative;
+    overflow: hidden;
+}
+
+.grid-builder .ui-jqgrid {
+    border: none;
+}
+
+.grid-builder .ui-jqgrid-titlebar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.config-panel {
+    border-radius: 0.375rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.config-panel h5, .config-panel h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.config-panel .form-label {
+    font-weight: 500;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.column-item {
+    background: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease;
+}
+
+.column-item:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Code Preview Styling */
+.code-preview {
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.code-preview::-webkit-scrollbar {
+    width: 8px;
+}
+
+.code-preview::-webkit-scrollbar-track {
+    background: #2d3748;
+}
+
+.code-preview::-webkit-scrollbar-thumb {
+    background: #4a5568;
+    border-radius: 4px;
+}
+
+.code-preview::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+
+/* Feature Buttons */
+.btn-feature {
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-feature:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-feature i {
+    margin-right: 0.375rem;
+}
+
+/* Progress Bar Custom Styling */
+.progress {
+    background-color: #e9ecef;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Status Indicators */
+.status-indicator {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+    margin-right: 0.5rem;
+}
+
+.status-active {
+    background: radial-gradient(circle, #28a745, #20c997);
+}
+
+.status-inactive {
+    background: radial-gradient(circle, #dc3545, #e74c3c);
+}
+
+.status-pending {
+    background: radial-gradient(circle, #ffc107, #f39c12);
+}
+
+/* Event Log Styling */
+#eventLog {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+#eventLog div {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+#eventLog div:last-child {
+    border-bottom: none;
+}
+
+#eventLog div:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Inline Edit Styles */
+.inline-edit-demo .jqgrow.ui-state-edit {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+    box-shadow: inset 0 0 0 2px #ffc107;
+}
+
+.inline-edit-demo .jqgrow.ui-state-edit td {
+    border-color: #ffc107 !important;
+}
+
+/* Dynamic Grid Theme Styles */
+.ui-jqgrid.ui-lightness {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ui-jqgrid.ui-lightness .ui-jqgrid-titlebar {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #495057;
+}
+
+.ui-jqgrid.ui-darkness {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.ui-jqgrid.ui-darkness .ui-jqgrid-titlebar {
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    color: #f8f9fa;
+}
+
+.ui-jqgrid.bootstrap .ui-jqgrid-titlebar {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+}
+
+/* Action Buttons in Grid */
+.btn-group-sm .btn {
+    padding: 0.25rem 0.375rem;
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+.btn-group-sm .btn i {
+    font-size: 0.75rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .feature-demo .demo-content {
+        padding: 1rem;
+    }
+    
+    .config-panel {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-feature {
+        font-size: 0.8rem;
+        padding: 0.375rem 0.75rem;
+        margin: 0.125rem;
+    }
+    
+    .code-preview {
+        font-size: 0.75rem;
+        max-height: 200px;
+    }
+    
+    #eventLog {
+        height: 200px !important;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .demo-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .demo-header p {
+        font-size: 0.875rem;
+    }
+    
+    .column-item .row > div {
+        margin-bottom: 0.5rem;
+    }
+    
+    .column-item .col-2 {
+        text-align: center;
+    }
+}
+
+/* Grid Loading Indicators */
+.ui-jqgrid .loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+/* Custom Scrollbars for Grid Areas */
+.ui-jqgrid-bdiv::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.ui-jqgrid-bdiv::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.ui-jqgrid-bdiv::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.ui-jqgrid-bdiv::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Animation for grid updates */
+@keyframes gridUpdate {
+    0% { background-color: rgba(0, 123, 255, 0.1); }
+    100% { background-color: transparent; }
+}
+
+.grid-updated {
+    animation: gridUpdate 0.5s ease-out;
+}
+
+/* Enhanced form controls */
+.config-panel .form-control:focus,
+.config-panel .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.config-panel .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Improved spacing and typography */
+.feature-demo h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+/* Grid caption enhancements */
+.ui-jqgrid-titlebar {
+    font-weight: 600;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+}
+
+/* Configuration tabs styling */
+.nav-tabs-sm .nav-link {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8rem;
+    border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.nav-tabs-sm {
+    font-size: 0.875rem;
+}
+
+/* Custom action and plugin items */
+.custom-action-item, .custom-plugin-item {
+    background: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease;
+}
+
+.custom-action-item:hover, .custom-plugin-item:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Event configuration styling */
+.event-item {
+    border-left: 3px solid #007bff;
+    padding-left: 0.75rem;
+}
+
+.event-item textarea {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.8rem;
+    background-color: #f8f9fa;
+}
+
+/* SubGrid and TreeGrid options */
+#subgridOptions, #treegridOptions {
+    border-left: 3px solid #28a745;
+    padding-left: 1rem;
+    margin-left: 0.5rem;
+}
+
+/* Form configuration styling */
+.forms-config .form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Plugin categories */
+.plugins-config h6 {
+    color: #6c757d;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Navigator options */
+.nav-option {
+    margin-right: 0.5rem;
+}
+
+/* Enhanced scrollable tab content */
+.tab-content {
+    max-height: 520px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+.tab-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Configuration section headers */
+.config-panel h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.75rem;
+    margin-top: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.25rem;
+}
+
+.config-panel h6:first-child {
+    margin-top: 0;
+}
+
+/* Custom styling for advanced features */
+.feature-demo .config-panel {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Enhanced form controls */
+.config-panel .form-control-sm, 
+.config-panel .form-select-sm {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Tab indicator for active configuration */
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+    color: #007bff;
+}
+
+/* Configuration completion indicators */
+.config-complete::after {
+    content: "✓";
+    color: #28a745;
+    font-weight: bold;
+    margin-left: 0.25rem;
+}
+
+/* Advanced Filter Styling */
+.ui-search-toolbar th {
+    padding: 4px !important;
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+.ui-search-toolbar input,
+.ui-search-toolbar select {
+    width: 100% !important;
+    padding: 4px 8px !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    background-color: #fff !important;
+}
+
+.ui-search-toolbar input:focus,
+.ui-search-toolbar select:focus {
+    border-color: #86b7fe !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+    outline: 0 !important;
+}
+
+/* Search operator dropdown */
+.soptclass {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 3px !important;
+    padding: 2px 6px !important;
+    margin-left: 4px !important;
+    cursor: pointer !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    color: #495057 !important;
+    transition: all 0.2s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.soptclass:hover {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: white !important;
+    border-color: #0056b3 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3) !important;
+}
+
+/* Clear search button */
+.clearsearchclass {
+    color: #dc3545 !important;
+    cursor: pointer !important;
+    margin-left: 4px !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    transition: all 0.2s ease !important;
+}
+
+.clearsearchclass:hover {
+    color: #c82333 !important;
+    transform: scale(1.1) !important;
+}
+
+/* Filter toolbar container */
+.ui-jqgrid .ui-jqgrid-htable .ui-search-toolbar {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-bottom: 2px solid #007bff !important;
+}
+
+/* Enhanced search menu */
+.ui-search-menu {
+    background: white !important;
+    border: 1px solid #007bff !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15) !important;
+    z-index: 1000 !important;
+    min-width: 200px !important;
+    overflow: hidden !important;
+}
+
+.ui-search-menu .ui-menu-item {
+    padding: 10px 15px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    border-bottom: 1px solid #f1f3f4 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+.ui-search-menu .ui-menu-item:last-child {
+    border-bottom: none !important;
+}
+
+.ui-search-menu .ui-menu-item:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    color: #007bff !important;
+    padding-left: 20px !important;
+}
+
+.ui-search-menu .ui-menu-item.ui-state-active {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* Filter preset buttons */
+.filter-preset-btn {
+    margin: 2px !important;
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+    border-radius: 3px !important;
+    transition: all 0.2s ease !important;
+}
+
+.filter-preset-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Advanced search dialog enhancements */
+.ui-searchFilter {
+    border-radius: 6px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.ui-searchFilter .ui-widget-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600 !important;
+}
+
+/* Filter information display */
+.filter-info {
+    background: rgba(13, 110, 253, 0.1) !important;
+    border: 1px solid rgba(13, 110, 253, 0.2) !important;
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+    margin: 8px 0 !important;
+    font-size: 12px !important;
+    color: #0c63e4 !important;
+}
+
+/* Responsive filter controls */
+@media (max-width: 768px) {
+    .ui-search-toolbar input,
+    .ui-search-toolbar select {
+        font-size: 12px !important;
+        padding: 2px 4px !important;
+    }
+    
+    .soptclass {
+        font-size: 10px !important;
+        padding: 1px 4px !important;
+    }
+    
+    .ui-search-menu {
+        min-width: 150px !important;
+    }
+    
+    .ui-search-menu .ui-menu-item {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+}
