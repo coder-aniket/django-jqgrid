@@ -70,9 +70,9 @@ docs = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/django-jqgrid"
-"Bug Reports" = "https://github.com/yourusername/django-jqgrid/issues"
-"Source" = "https://github.com/yourusername/django-jqgrid"
+"Homepage" = "https://github.com/coder-aniket/django-jqgrid"
+"Bug Reports" = "https://github.com/coder-aniket/django-jqgrid/issues"
+"Source" = "https://github.com/coder-aniket/django-jqgrid"
 "Documentation" = "https://django-jqgrid.readthedocs.io"
 
 [tool.setuptools.dynamic]

@@ -6,6 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'django_jqgrid/plugins/jqGrid/css/ui.jqgrid-bootstrap5.css' %}">
 <link rel="stylesheet" href="{% static 'django_jqgrid/plugins/jqGrid/css/addons/ui.multiselect.css' %}">
+<link rel="stylesheet" href="{% static 'django_jqgrid/plugins/jqGrid/plugins/searchFilter.css' %}">
 <link rel="stylesheet" href="{% static 'example/css/all-features.css' %}">
 <style>
     .all-features-grid {
@@ -38,6 +39,16 @@
     .grid-controls button {
         margin: 5px;
     }
+    .btn-group {
+        display: inline-flex;
+        align-items: center;
+        margin: 5px;
+    }
+    .btn-group .form-select {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        margin-left: -1px;
+    }
 </style>
 {% endblock %}
 
@@ -63,37 +74,42 @@
     <div class="feature-list">
         <h5><i class="fas fa-check-circle text-success"></i> Enabled Features:</h5>
         <ul>
-            <li>Multi-select with checkbox</li>
-            <li>Row numbers</li>
-            <li>Inline editing</li>
-            <li>Cell editing</li>
-            <li>Sorting (all columns)</li>
-            <li>Searching/Filtering</li>
-            <li>Grouping</li>
-            <li>SubGrid</li>
-            <li>TreeGrid</li>
-            <li>Frozen columns</li>
-            <li>Column chooser</li>
-            <li>Export (CSV/Excel)</li>
-            <li>Pagination</li>
-            <li>Footer row</li>
-            <li>User data</li>
-            <li>Auto-width</li>
-            <li>Resizable columns</li>
-            <li>Toolbar searching</li>
-            <li>Advanced searching</li>
-            <li>Form editing</li>
-            <li>Navigation bar</li>
-            <li>Context menu</li>
-            <li>Keyboard navigation</li>
-            <li>Touch support</li>
-            <li>RTL support</li>
-            <li>Responsive design</li>
-            <li>Custom formatters</li>
-            <li>Virtual scrolling</li>
-            <li>State persistence</li>
-            <li>Multi-language support</li>
-            <li>Theme support</li>
+            <li><i class="fas fa-check text-success"></i> Multi-select with checkbox</li>
+            <li><i class="fas fa-check text-success"></i> Row numbers</li>
+            <li><i class="fas fa-check text-success"></i> Inline editing</li>
+            <li><i class="fas fa-check text-success"></i> Cell editing</li>
+            <li><i class="fas fa-check text-success"></i> Sorting (all columns)</li>
+            <li><i class="fas fa-check text-success"></i> Searching/Filtering</li>
+            <li><i class="fas fa-check text-success"></i> Expression-based filtering</li>
+            <li><i class="fas fa-check text-success"></i> Advanced multi-condition search</li>
+            <li><i class="fas fa-check text-success"></i> Grouping</li>
+            <li><i class="fas fa-check text-success"></i> SubGrid</li>
+            <li><i class="fas fa-check text-success"></i> TreeGrid</li>
+            <li><i class="fas fa-check text-success"></i> Frozen columns</li>
+            <li><i class="fas fa-check text-success"></i> Column chooser</li>
+            <li><i class="fas fa-check text-success"></i> Export (CSV/Excel)</li>
+            <li><i class="fas fa-check text-success"></i> Pagination with multiple page sizes</li>
+            <li><i class="fas fa-check text-success"></i> Footer row with calculations</li>
+            <li><i class="fas fa-check text-success"></i> Auto-width & auto-resize</li>
+            <li><i class="fas fa-check text-success"></i> Resizable columns</li>
+            <li><i class="fas fa-check text-success"></i> Toolbar searching</li>
+            <li><i class="fas fa-check text-success"></i> Top and bottom pagers</li>
+            <li><i class="fas fa-check text-success"></i> Form editing (Add/Edit/Delete/View)</li>
+            <li><i class="fas fa-check text-success"></i> Navigation bar</li>
+            <li><i class="fas fa-check text-success"></i> Context menu</li>
+            <li><i class="fas fa-check text-success"></i> Keyboard navigation</li>
+            <li><i class="fas fa-check text-success"></i> Bootstrap 5 styling</li>
+            <li><i class="fas fa-check text-success"></i> FontAwesome icons</li>
+            <li><i class="fas fa-check text-success"></i> Responsive design</li>
+            <li><i class="fas fa-check text-success"></i> Custom formatters (price, status, rating)</li>
+            <li><i class="fas fa-check text-success"></i> State persistence</li>
+            <li><i class="fas fa-check text-success"></i> jQuery UI theme support (15 themes)</li>
+            <li><i class="fas fa-check text-success"></i> Header titles</li>
+            <li><i class="fas fa-check text-success"></i> Multiple selection modes</li>
+            <li><i class="fas fa-check text-success"></i> Grid view optimization</li>
+            <li><i class="fas fa-check text-success"></i> Auto-encoding</li>
+            <li><i class="fas fa-check text-success"></i> Alternating row colors</li>
+            <li><i class="fas fa-check text-success"></i> Grid events & callbacks</li>
         </ul>
     </div>
 
@@ -115,15 +131,44 @@
         <button class="btn btn-sm btn-danger" onclick="clearFilters()">
             <i class="fas fa-times"></i> Clear Filters
         </button>
+        <button class="btn btn-sm btn-primary" onclick="showAdvancedFilter()">
+            <i class="fas fa-filter"></i> Advanced Filter
+        </button>
+        <button class="btn btn-sm btn-info" onclick="showExpressionBuilder()">
+            <i class="fas fa-code"></i> Expression Filter
+        </button>
         <button class="btn btn-sm btn-secondary" onclick="saveGridState()">
             <i class="fas fa-save"></i> Save State
         </button>
         <button class="btn btn-sm btn-secondary" onclick="restoreGridState()">
             <i class="fas fa-undo"></i> Restore State
         </button>
-        <button class="btn btn-sm btn-dark" onclick="toggleTheme()">
-            <i class="fas fa-palette"></i> Toggle Theme
-        </button>
+        <div class="btn-group">
+            <button class="btn btn-sm btn-dark" onclick="toggleTheme()">
+                <i class="fas fa-palette"></i> Toggle Theme
+            </button>
+            <select id="themeSelector" class="form-select form-select-sm" style="width: 180px;" onchange="applyTheme(this.value)">
+                <optgroup label="jqGrid Themes">
+                    <option value="classic">Classic jqGrid</option>
+                    <option value="bootstrap3">Bootstrap 3</option>
+                    <option value="bootstrap4">Bootstrap 4</option>
+                    <option value="bootstrap5" selected>Bootstrap 5</option>
+                    <option value="bootstrap-ui">Bootstrap + jQuery UI</option>
+                </optgroup>
+                <optgroup label="jQuery UI Themes (CDN)">
+                    <option value="ui-lightness">UI Lightness</option>
+                    <option value="ui-darkness">UI Darkness</option>
+                    <option value="smoothness">Smoothness</option>
+                    <option value="cupertino">Cupertino</option>
+                    <option value="redmond">Redmond</option>
+                    <option value="sunny">Sunny</option>
+                    <option value="overcast">Overcast</option>
+                    <option value="dark-hive">Dark Hive</option>
+                    <option value="flick">Flick</option>
+                    <option value="start">Start</option>
+                </optgroup>
+            </select>
+        </div>
     </div>
 
     <!-- Main Grid -->
@@ -140,6 +185,64 @@
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="#" onclick="duplicateSelectedRow()"><i class="fas fa-copy"></i> Duplicate</a></li>
     </ul>
+
+    <!-- Expression Filter Modal -->
+    <div class="modal fade" id="expressionFilterModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-code"></i> Expression-based Filter Builder
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Filter Expression:</label>
+                        <textarea id="filterExpression" class="form-control" rows="3" placeholder="Example: (price > 100 AND stock > 0) OR (featured = true AND rating >= 4.5)"></textarea>
+                        <small class="text-muted">
+                            Supported operators: =, !=, <, >, <=, >=, LIKE, NOT LIKE, IN, NOT IN, AND, OR, ()
+                        </small>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Quick Expression Templates:</h6>
+                        <div class="btn-group-vertical w-100" role="group">
+                            <button class="btn btn-outline-secondary text-start" onclick="setExpression('price > 50 AND stock > 0')">
+                                <i class="fas fa-dollar-sign"></i> High value items in stock
+                            </button>
+                            <button class="btn btn-outline-secondary text-start" onclick="setExpression('(type = &quot;product&quot; AND featured = true) OR rating >= 4.5')">
+                                <i class="fas fa-star"></i> Featured products or high rated
+                            </button>
+                            <button class="btn btn-outline-secondary text-start" onclick="setExpression('sales > 100000 AND status = &quot;active&quot;')">
+                                <i class="fas fa-chart-line"></i> Top selling active items
+                            </button>
+                            <button class="btn btn-outline-secondary text-start" onclick="setExpression('(stock = 0 OR stock < 10) AND type = &quot;product&quot;')">
+                                <i class="fas fa-exclamation-triangle"></i> Low or out of stock products
+                            </button>
+                            <button class="btn btn-outline-secondary text-start" onclick="setExpression('name LIKE &quot;%Pro%&quot; OR name LIKE &quot;%Ultra%&quot;')">
+                                <i class="fas fa-search"></i> Premium products (Pro/Ultra)
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Available Fields:</h6>
+                        <code>id, name, type, price, stock, sales, rating, featured, status, created</code>
+                    </div>
+                    <div id="expressionError" class="alert alert-danger d-none"></div>
+                    <div id="expressionPreview" class="alert alert-info d-none">
+                        <h6>Filter Preview:</h6>
+                        <div id="previewContent"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="applyExpressionFilter()">
+                        <i class="fas fa-check"></i> Apply Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -148,6 +251,7 @@
 <script src="{% static 'django_jqgrid/plugins/jqGrid/js/jquery.jqGrid.min.js' %}"></script>
 <script src="{% static 'django_jqgrid/plugins/jqGrid/plugins/grid.addons.js' %}"></script>
 <script src="{% static 'django_jqgrid/plugins/jqGrid/plugins/jquery.contextmenu.js' %}"></script>
+<script src="{% static 'django_jqgrid/plugins/jqGrid/plugins/jquery.searchFilter.js' %}"></script>
 <script src="{% static 'django_jqgrid/plugins/jqGrid/js/addons/ui.multiselect.js' %}"></script>
 <script src="{% static 'example/js/all-features.js' %}"></script>
 {% endblock %}

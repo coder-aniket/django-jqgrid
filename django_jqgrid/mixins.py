@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from rest_framework.decorators import action
+from django_jqgrid.utils import get_content_type_cached
 
 
 def get_setting(key, default=None):
@@ -712,10 +714,19 @@ class JqGridConfigMixin:
         """Get template filters for search options"""
         from django_jqgrid.models import GridFilter
         try:
+            # Get content type with caching
+            content_type = get_content_type_cached(
+                self.queryset.model._meta.app_label,
+                self.queryset.model._meta.model_name
+            )
+            
+            if not content_type:
+                return {"tmplNames": [], "tmplFilters": [], "tmplIds": []}
+            
             # Get user-specific filters
             user_filters = GridFilter.objects.filter(
                 key='tmplFilters',
-                table=ContentType.objects.get_for_model(self.queryset.model),
+                table=content_type,
                 created_by=self.request.user,
                 is_global=False
             ).values('id', 'name', 'value')
@@ -723,7 +734,7 @@ class JqGridConfigMixin:
             # Get global filters
             global_filters = GridFilter.objects.filter(
                 key='tmplFilters',
-                table=ContentType.objects.get_for_model(self.queryset.model),
+                table=content_type,
                 is_global=True
             ).values('id', 'name', 'value')
 

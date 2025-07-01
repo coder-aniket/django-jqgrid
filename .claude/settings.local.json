@@ -1,7 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(python:*)",
+      "Bash(pip3 install:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(pip3 list:*)",
+      "Bash(PYTHONPATH=/mnt/c/Users/coder-aniket/PycharmProjects/django-jqgrid-new:$PYTHONPATH python3 manage.py check)",
+      "Bash(PYTHONPATH=/mnt/c/Users/coder-aniket/PycharmProjects/django-jqgrid-new:$PYTHONPATH python3 manage.py runserver --help)",
+      "Bash(grep:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

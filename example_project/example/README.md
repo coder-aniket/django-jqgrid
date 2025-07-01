@@ -358,7 +358,7 @@ To contribute to the examples:
 
 ## Support
 
-- GitHub Issues: [Report bugs or request features](https://github.com/yourusername/django-jqgrid/issues)
+- GitHub Issues: [Report bugs or request features](https://github.com/coder-aniket/django-jqgrid/issues)
 - Documentation: [Full documentation](https://django-jqgrid.readthedocs.io)
 - Examples: This example app serves as the primary reference
 

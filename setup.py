@@ -23,7 +23,7 @@ setup(
     description='A Django app for integrating jqGrid with Django REST Framework',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/yourusername/django-jqgrid',
+    url='https://github.com/coder-aniket/django-jqgrid',
     packages=find_packages(exclude=['tests*', 'docs*', 'example_project*']),
     include_package_data=True,
     classifiers=[
@@ -84,8 +84,8 @@ setup(
     },
     keywords='django jqgrid rest framework grid datatable',
     project_urls={
-        'Bug Reports': 'https://github.com/yourusername/django-jqgrid/issues',
-        'Source': 'https://github.com/yourusername/django-jqgrid',
+        'Bug Reports': 'https://github.com/coder-aniket/django-jqgrid/issues',
+        'Source': 'https://github.com/coder-aniket/django-jqgrid',
         'Documentation': 'https://django-jqgrid.readthedocs.io',
     },
 )

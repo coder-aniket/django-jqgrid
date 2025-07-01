@@ -1,5 +1,18 @@
+from django.core.paginator import Paginator
+from django.utils.functional import cached_property
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+
+
+class OptimizedPaginator(Paginator):
+    """Optimized paginator that avoids unnecessary count queries."""
+    
+    @cached_property
+    def count(self):
+        """Override count to use cached value if available."""
+        if hasattr(self.object_list, '_result_cache') and self.object_list._result_cache is not None:
+            return len(self.object_list._result_cache)
+        return super().count
 
 
 class JqGridPagination(PageNumberPagination):
@@ -7,6 +20,7 @@ class JqGridPagination(PageNumberPagination):
     page_size_query_param = 'rows'  # Align with jqGrid param
     page_size = 25
     max_page_size = 5000
+    django_paginator_class = OptimizedPaginator
 
     def get_paginated_response(self, data):
         # Allow views to optionally add footer/summary data

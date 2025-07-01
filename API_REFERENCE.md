@@ -9,6 +9,7 @@
 5. [Models](#models)
 6. [Serializers](#serializers)
 7. [Settings](#settings)
+8. [Utility Functions](#utility-functions)
 
 ## Mixins
 
@@ -696,3 +697,109 @@ class ProductViewSet(JqGridConfigMixin, JqGridBulkActionMixin, viewsets.ModelVie
         # Add custom logic here
         return qs
 ```
+
+## Utility Functions
+
+### get_content_type_cached
+
+Get ContentType with caching to reduce database queries.
+
+```python
+from django_jqgrid.utils import get_content_type_cached
+
+content_type = get_content_type_cached('myapp', 'mymodel', cache_timeout=3600)
+```
+
+**Parameters:**
+- `app_label` (str): Django app label
+- `model_name` (str): Model name
+- `cache_timeout` (int): Cache timeout in seconds (default: 3600)
+
+**Returns:** ContentType instance or None
+
+### parse_jqgrid_filters
+
+Parse jqGrid filter string into Django ORM lookup format.
+
+```python
+from django_jqgrid.utils import parse_jqgrid_filters
+
+filters = parse_jqgrid_filters(request.GET.get('filters'))
+queryset = MyModel.objects.filter(**filters['filter']).exclude(**filters['exclude'])
+```
+
+**Parameters:**
+- `filters_str` (str): JSON string containing jqGrid filters
+
+**Returns:** Dictionary with 'filter' and 'exclude' keys
+
+### get_model_field_info
+
+Get detailed information about a model field.
+
+```python
+from django_jqgrid.utils import get_model_field_info
+
+field_info = get_model_field_info(MyModel, 'field_name')
+```
+
+**Parameters:**
+- `model`: Django model class
+- `field_name` (str): Field name
+
+**Returns:** Dictionary with field information
+
+### format_value_for_export
+
+Format a value for export (CSV, Excel, etc.).
+
+```python
+from django_jqgrid.utils import format_value_for_export
+
+formatted = format_value_for_export(value, field_type='DateField')
+```
+
+**Parameters:**
+- `value`: The value to format
+- `field_type` (str): Optional field type for specific formatting
+
+**Returns:** Formatted value as string
+
+### get_jqgrid_sort_params
+
+Extract and parse jqGrid sorting parameters from request.
+
+```python
+from django_jqgrid.utils import get_jqgrid_sort_params
+
+ordering = get_jqgrid_sort_params(request)
+queryset = MyModel.objects.order_by(*ordering)
+```
+
+**Parameters:**
+- `request`: Django request object
+
+**Returns:** List of ordering fields for Django ORM
+
+### build_jqgrid_response
+
+Build a properly formatted jqGrid response.
+
+```python
+from django_jqgrid.utils import build_jqgrid_response
+
+response_data = build_jqgrid_response(
+    queryset=page_objects,
+    page=1,
+    page_size=25,
+    total_count=100
+)
+```
+
+**Parameters:**
+- `queryset`: The queryset or list of objects
+- `page` (int): Current page number
+- `page_size` (int): Number of items per page
+- `total_count` (int): Optional total count
+
+**Returns:** Dictionary formatted for jqGrid

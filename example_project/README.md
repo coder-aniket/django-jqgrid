@@ -17,7 +17,7 @@ This is a complete Django project demonstrating the features and capabilities of
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/django-jqgrid.git
+git clone https://github.com/coder-aniket/django-jqgrid.git
 cd django-jqgrid/example_project
 ```
 

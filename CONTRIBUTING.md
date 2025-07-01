@@ -69,7 +69,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/django-jqgrid.git
+git clone https://github.com/coder-aniket/django-jqgrid.git
 cd django-jqgrid
 
 # Create a virtual environment

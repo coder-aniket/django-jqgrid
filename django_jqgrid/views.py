@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.db import models
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -26,7 +27,7 @@ class GridFilterViewSet(viewsets.ModelViewSet):
         return GridFilter.objects.filter(
             # Filter for the current user's filters OR global filters
             models.Q(created_by=user) | models.Q(is_global=True)
-        ).order_by('-created_at')
+        ).select_related('table').order_by('-created_at')
 
     @action(detail=False, methods=['get'])
     def by_table(self, request):
@@ -43,8 +44,12 @@ class GridFilterViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            # Get content type for this app/model
-            content_type = ContentType.objects.get(app_label=app_name, model=model_name)
+            # Get content type for this app/model with caching
+            cache_key = f"content_type_{app_name}_{model_name}"
+            content_type = cache.get(cache_key)
+            if not content_type:
+                content_type = ContentType.objects.get(app_label=app_name, model=model_name)
+                cache.set(cache_key, content_type, 3600)  # Cache for 1 hour
 
             # Get filters for this content type
             filters = self.get_queryset().filter(table=content_type)

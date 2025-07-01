@@ -226,11 +226,12 @@ $.fn.fmatter.stockFormatter = function(cellvalue, options, rowObject) {
 };
 
 // Initialize the grid with ALL features
-$(document).ready(function() {
+function initializeAllFeaturesGrid() {
     $("#allFeaturesGrid").jqGrid({
         // Data Configuration
         datatype: "local",
         data: allFeaturesData,
+        mtype: "GET",
         
         // Column Model with all features
         colModel: [
@@ -418,18 +419,26 @@ $(document).ready(function() {
         
         // Grid Configuration - ALL FEATURES ENABLED
         pager: "#allFeaturesPager",
-        rowNum: 10,
-        rowList: [5, 10, 20, 30, 50, 100],
+        rowNum: 25,
+        rowList: [25, 50, 100, 500, 1000, 2000, 5000],
         sortname: 'id',
         sortorder: "asc",
         viewrecords: true,
         gridview: true,
         autoencode: true,
         ignoreCase: true,
-        height: 'auto',
+        height: 400,
         autowidth: true,
-        shrinkToFit: true,
+        shrinkToFit: false,
         forceFit: false,
+        
+        // Additional UI Features
+        headertitles: true,
+        styleUI: gridState?.styleUI || jqGridThemes[currentTheme]?.styleUI || "Bootstrap5",
+        iconSet: currentTheme === 'classic' ? "jQueryUI" : "fontAwesome",
+        responsive: true,
+        autoresizeOnLoad: true,
+        toppager: true,
         
         // Selection Features
         multiselect: true,
@@ -524,11 +533,12 @@ $(document).ready(function() {
         // Column Features
         sortable: true,
         columnChooser: true,
-        headertitles: true,
         
-        // Search/Filter Features
+        // Search/Filter Features  
         search: true,
-        searchOnEnter: true,
+        searchOnEnter: false,
+        stringResult: true,
+        toolbar: [true, "both"],
         
         // Caption
         caption: "All Features Grid - Every Option Enabled",
@@ -701,7 +711,8 @@ $(document).ready(function() {
     $("#allFeaturesGrid").jqGrid('filterToolbar', {
         searchOnEnter: false,
         enableClear: true,
-        defaultSearch: 'cn'
+        defaultSearch: 'cn',
+        stringResult: true
     });
     
     // Enable grid resize
@@ -714,6 +725,14 @@ $(document).ready(function() {
     $(document).click(function() {
         $("#contextMenu").hide();
     });
+}
+
+// Initialize everything when document is ready
+$(document).ready(function() {
+    // Wait a bit to ensure all plugins are loaded
+    setTimeout(() => {
+        initializeAllFeaturesGrid();
+    }, 100);
 });
 
 // Utility functions
@@ -807,72 +826,114 @@ function exportGrid(format) {
 
 function clearFilters() {
     const grid = $("#allFeaturesGrid");
-    grid[0].clearToolbar();
-    grid.jqGrid('setGridParam', {search: false, postData: {filters: ""}}).trigger('reloadGrid');
+    
+    // Clear toolbar filters
+    if (grid[0].clearToolbar) {
+        grid[0].clearToolbar();
+    }
+    
+    // Clear search filters
+    grid.jqGrid('setGridParam', {
+        search: false, 
+        postData: {filters: ""}
+    });
+    
+    // Restore original data
+    const allData = window.originalGridData || allFeaturesData;
+    grid.jqGrid('clearGridData');
+    allData.forEach((row, index) => {
+        grid.jqGrid('addRowData', row.id, row);
+    });
+    
+    // Update footer totals
+    updateFooterTotals(grid, allData);
+    
+    // Clear expression filter
+    $('#filterExpression').val('');
+    $('#expressionPreview').addClass('d-none');
+    $('#expressionError').addClass('d-none');
+    
+    console.log('All filters cleared, restored', allData.length, 'records');
 }
 
 function saveGridState() {
-    const grid = $("#allFeaturesGrid");
-    const state = {
-        colModel: grid.jqGrid('getGridParam', 'colModel'),
-        sortname: grid.jqGrid('getGridParam', 'sortname'),
-        sortorder: grid.jqGrid('getGridParam', 'sortorder'),
-        page: grid.jqGrid('getGridParam', 'page'),
-        rowNum: grid.jqGrid('getGridParam', 'rowNum'),
-        postData: grid.jqGrid('getGridParam', 'postData')
-    };
-    localStorage.setItem('allFeaturesGridState', JSON.stringify(state));
-    alert('Grid state saved!');
-}
-
-function restoreGridState() {
-    const state = localStorage.getItem('allFeaturesGridState');
-    if (state) {
-        const gridState = JSON.parse(state);
+    try {
         const grid = $("#allFeaturesGrid");
+        if (grid.length === 0) return;
         
-        // Restore column widths and visibility
-        gridState.colModel.forEach((col, index) => {
-            const currentCol = grid.jqGrid('getColProp', col.name);
-            if (currentCol) {
-                grid.jqGrid('setColProp', col.name, {
+        const state = {
+            colModel: [],
+            sortname: grid.jqGrid('getGridParam', 'sortname'),
+            sortorder: grid.jqGrid('getGridParam', 'sortorder'),
+            page: grid.jqGrid('getGridParam', 'page'),
+            rowNum: grid.jqGrid('getGridParam', 'rowNum'),
+            postData: grid.jqGrid('getGridParam', 'postData'),
+            grouping: grid.jqGrid('getGridParam', 'grouping'),
+            treeGrid: grid.jqGrid('getGridParam', 'treeGrid')
+        };
+        
+        // Save column states
+        const colModel = grid.jqGrid('getGridParam', 'colModel');
+        if (colModel) {
+            colModel.forEach(col => {
+                state.colModel.push({
+                    name: col.name,
                     width: col.width,
                     hidden: col.hidden
                 });
-            }
-        });
+            });
+        }
         
-        // Restore other parameters
-        grid.jqGrid('setGridParam', {
-            sortname: gridState.sortname,
-            sortorder: gridState.sortorder,
-            page: gridState.page,
-            rowNum: gridState.rowNum,
-            postData: gridState.postData
-        }).trigger('reloadGrid');
-        
-        alert('Grid state restored!');
-    } else {
-        alert('No saved state found!');
+        gridState = state;
+        localStorage.setItem('allFeaturesGridState', JSON.stringify(state));
+    } catch(e) {
+        console.error('Error saving grid state:', e);
     }
 }
 
-let currentTheme = 'light';
-function toggleTheme() {
-    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-    
-    if (currentTheme === 'dark') {
-        $('body').addClass('bg-dark text-light');
-        $('.ui-jqgrid').addClass('table-dark');
-        $('.ui-jqgrid-htable').addClass('table-dark');
-        $('.ui-jqgrid-btable').addClass('table-dark');
-    } else {
-        $('body').removeClass('bg-dark text-light');
-        $('.ui-jqgrid').removeClass('table-dark');
-        $('.ui-jqgrid-htable').removeClass('table-dark');
-        $('.ui-jqgrid-btable').removeClass('table-dark');
+function restoreGridState() {
+    try {
+        const savedState = localStorage.getItem('allFeaturesGridState');
+        if (savedState || gridState) {
+            const state = savedState ? JSON.parse(savedState) : gridState;
+            const grid = $("#allFeaturesGrid");
+            
+            if (grid.length === 0) return;
+            
+            // Restore column widths and visibility
+            if (state.colModel) {
+                setTimeout(() => {
+                    state.colModel.forEach((col) => {
+                        try {
+                            const currentCol = grid.jqGrid('getColProp', col.name);
+                            if (currentCol) {
+                                grid.jqGrid('setColProp', col.name, {
+                                    width: col.width,
+                                    hidden: col.hidden
+                                });
+                            }
+                        } catch(e) {
+                            console.warn('Could not restore column state for:', col.name);
+                        }
+                    });
+                    
+                    // Restore other parameters
+                    grid.jqGrid('setGridParam', {
+                        sortname: state.sortname,
+                        sortorder: state.sortorder,
+                        page: state.page || 1,
+                        rowNum: state.rowNum || 25,
+                        postData: state.postData || {}
+                    }).trigger('reloadGrid');
+                }, 200);
+            }
+        }
+    } catch(e) {
+        console.error('Error restoring grid state:', e);
     }
 }
+
+// Theme toggling is handled by the comprehensive theme system below
 
 // Context menu functions
 function editSelectedRow() {
@@ -920,3 +981,624 @@ function duplicateSelectedRow() {
         grid.jqGrid('addRowData', newId, rowData, 'after', rowId);
     }
 }
+
+// Advanced Filter Functions
+function showAdvancedFilter() {
+    try {
+        const grid = $("#allFeaturesGrid");
+        
+        // Check if grid exists and has data
+        if (!grid.length || !grid[0].grid) {
+            console.error('Grid not properly initialized');
+            alert('Please wait for the grid to fully load before using advanced filter.');
+            return;
+        }
+        
+        // Check if searchGrid method exists
+        if (typeof grid.jqGrid('searchGrid') !== 'function') {
+            console.warn('searchGrid not available, using expression filter instead');
+            showExpressionBuilder();
+            return;
+        }
+        
+        // Use the navGrid search button instead which is more reliable
+        const pager = $("#allFeaturesPager");
+        const searchBtn = pager.find(".ui-icon-search").parent();
+        if (searchBtn.length) {
+            searchBtn.click();
+        } else {
+            // Fallback to manual searchGrid call
+            grid.jqGrid('searchGrid', {
+                multipleSearch: true,
+                multipleGroup: true,
+                showQuery: true,
+                caption: "Advanced Search",
+                recreateForm: true,
+                closeAfterSearch: false,
+                closeAfterReset: false,
+                overlay: 0
+            });
+        }
+    } catch (error) {
+        console.error('Error showing advanced filter:', error);
+        // Fallback to expression filter
+        showExpressionBuilder();
+    }
+}
+
+// Expression Filter Functions
+function showExpressionBuilder() {
+    // Remove aria-hidden before showing modal to prevent accessibility warning
+    $('#expressionFilterModal').removeAttr('aria-hidden');
+    $('#expressionFilterModal').modal('show');
+}
+
+function setExpression(expression) {
+    $('#filterExpression').val(expression);
+    previewExpression();
+}
+
+function previewExpression() {
+    const expression = $('#filterExpression').val();
+    if (expression) {
+        $('#expressionPreview').removeClass('d-none');
+        $('#previewContent').html(`<code>${expression}</code>`);
+    } else {
+        $('#expressionPreview').addClass('d-none');
+    }
+}
+
+// Expression parser and filter
+function parseExpression(expression) {
+    // Convert expression to jqGrid filter format
+    try {
+        // This is a simplified parser - in production, use a proper expression parser
+        let filters = {
+            groupOp: "AND",
+            rules: [],
+            groups: []
+        };
+        
+        // Handle complex expressions with parentheses
+        if (expression.includes('(') && expression.includes(')')) {
+            // Parse grouped expressions
+            const groups = expression.match(/\([^()]+\)/g);
+            if (groups) {
+                groups.forEach((group, index) => {
+                    const cleanGroup = group.replace(/[()]/g, '').trim();
+                    const subFilters = parseSimpleExpression(cleanGroup);
+                    if (subFilters.rules.length > 0) {
+                        filters.groups.push(subFilters);
+                    }
+                });
+                
+                // Determine main group operator
+                if (expression.toUpperCase().includes(' OR ')) {
+                    filters.groupOp = "OR";
+                }
+            }
+        } else {
+            // Simple expression without parentheses
+            filters = parseSimpleExpression(expression);
+        }
+        
+        return filters;
+    } catch (e) {
+        console.error("Expression parsing error:", e);
+        return null;
+    }
+}
+
+function parseSimpleExpression(expression) {
+    const filters = {
+        groupOp: "AND",
+        rules: []
+    };
+    
+    // Determine group operator
+    if (expression.toUpperCase().includes(' OR ')) {
+        filters.groupOp = "OR";
+        expression = expression.replace(/ OR /gi, ' AND ');
+    }
+    
+    // Split by AND
+    const conditions = expression.split(/ AND /i);
+    
+    conditions.forEach(condition => {
+        const trimmed = condition.trim();
+        
+        // Parse different operator types
+        let match;
+        
+        // LIKE operator
+        if ((match = trimmed.match(/(\w+)\s+LIKE\s+"([^"]+)"/i))) {
+            filters.rules.push({
+                field: match[1],
+                op: "cn",
+                data: match[2].replace(/%/g, '')
+            });
+        }
+        // NOT LIKE operator
+        else if ((match = trimmed.match(/(\w+)\s+NOT\s+LIKE\s+"([^"]+)"/i))) {
+            filters.rules.push({
+                field: match[1],
+                op: "nc",
+                data: match[2].replace(/%/g, '')
+            });
+        }
+        // IN operator
+        else if ((match = trimmed.match(/(\w+)\s+IN\s+\(([^)]+)\)/i))) {
+            const values = match[2].split(',').map(v => v.trim().replace(/['"]/g, ''));
+            filters.rules.push({
+                field: match[1],
+                op: "in",
+                data: values.join(',')
+            });
+        }
+        // Comparison operators
+        else if ((match = trimmed.match(/(\w+)\s*(=|!=|<>|<=|>=|<|>)\s*(.+)/))) {
+            const field = match[1];
+            const operator = match[2];
+            const value = match[3].trim().replace(/['"]/g, '');
+            
+            let op;
+            switch(operator) {
+                case '=': op = 'eq'; break;
+                case '!=': case '<>': op = 'ne'; break;
+                case '<': op = 'lt'; break;
+                case '>': op = 'gt'; break;
+                case '<=': op = 'le'; break;
+                case '>=': op = 'ge'; break;
+            }
+            
+            filters.rules.push({
+                field: field,
+                op: op,
+                data: value
+            });
+        }
+    });
+    
+    return filters;
+}
+
+function applyExpressionFilter() {
+    const expression = $('#filterExpression').val().trim();
+    
+    if (!expression) {
+        $('#expressionError').text('Please enter a filter expression').removeClass('d-none');
+        return;
+    }
+    
+    // Validate expression syntax
+    try {
+        // Test the expression with sample data first
+        const testRow = allFeaturesData[0];
+        const testResult = evaluateExpression(testRow, expression);
+        console.log('Expression validation passed, test result:', testResult);
+    } catch (e) {
+        $('#expressionError').text('Invalid expression syntax: ' + e.message).removeClass('d-none');
+        return;
+    }
+    
+    try {
+        const grid = $("#allFeaturesGrid");
+        
+        // Store original data if not already stored
+        if (!window.originalGridData) {
+            window.originalGridData = [...allFeaturesData];
+        }
+        
+        // Apply expression-based filtering on local data
+        const filteredData = window.originalGridData.filter(row => {
+            try {
+                return evaluateExpression(row, expression);
+            } catch (e) {
+                console.warn('Error evaluating row:', row.id, e);
+                return false;
+            }
+        });
+        
+        // Clear and reload with filtered data
+        grid.jqGrid('clearGridData');
+        filteredData.forEach((row, index) => {
+            grid.jqGrid('addRowData', row.id, row);
+        });
+        
+        // Update footer totals
+        updateFooterTotals(grid, filteredData);
+        
+        console.log(`Expression filter applied: ${filteredData.length} of ${window.originalGridData.length} records match`);
+        $('#expressionFilterModal').modal('hide');
+        $('#expressionError').addClass('d-none');
+        
+    } catch (e) {
+        $('#expressionError').text('Error applying filter: ' + e.message).removeClass('d-none');
+        console.error('Filter application error:', e);
+    }
+}
+
+// Helper function to update footer totals
+function updateFooterTotals(grid, data) {
+    if (data && data.length > 0) {
+        const totalSales = data.reduce((sum, row) => sum + (parseFloat(row.sales) || 0), 0);
+        const totalStock = data.reduce((sum, row) => sum + (parseInt(row.stock) || 0), 0);
+        
+        grid.jqGrid('footerData', 'set', {
+            name: `Filtered Totals (${data.length} rows):`,
+            sales: totalSales,
+            stock: totalStock
+        });
+    }
+}
+
+// Evaluate expression against a data row
+function evaluateExpression(row, expression) {
+    try {
+        // Create a safe evaluation context
+        const context = {
+            id: row.id,
+            name: row.name,
+            type: row.type,
+            price: parseFloat(row.price) || 0,
+            stock: parseInt(row.stock) || 0,
+            sales: parseFloat(row.sales) || 0,
+            rating: parseFloat(row.rating) || 0,
+            featured: row.featured === true || row.featured === 'true',
+            status: row.status,
+            created: row.created
+        };
+        
+        // Convert expression to JavaScript
+        let jsExpression = expression;
+        
+        // Handle LIKE operations first
+        jsExpression = jsExpression.replace(/(\w+)\s+LIKE\s+"([^"]+)"/gi, (match, field, pattern) => {
+            const regex = pattern.replace(/%/g, '.*');
+            return `context.${field}.match(/${regex}/i)`;
+        });
+        
+        // Handle NOT LIKE operations
+        jsExpression = jsExpression.replace(/(\w+)\s+NOT\s+LIKE\s+"([^"]+)"/gi, (match, field, pattern) => {
+            const regex = pattern.replace(/%/g, '.*');
+            return `!context.${field}.match(/${regex}/i)`;
+        });
+        
+        // Handle IN operations
+        jsExpression = jsExpression.replace(/(\w+)\s+IN\s+\(([^)]+)\)/gi, (match, field, values) => {
+            const valueList = values.split(',').map(v => v.trim().replace(/['"]/g, ''));
+            return `[${valueList.map(v => `"${v}"`).join(',')}].includes(context.${field})`;
+        });
+        
+        // Handle NOT IN operations
+        jsExpression = jsExpression.replace(/(\w+)\s+NOT\s+IN\s+\(([^)]+)\)/gi, (match, field, values) => {
+            const valueList = values.split(',').map(v => v.trim().replace(/['"]/g, ''));
+            return `![${valueList.map(v => `"${v}"`).join(',')}].includes(context.${field})`;
+        });
+        
+        // Replace comparison operators (do this before replacing = with ==)
+        jsExpression = jsExpression
+            .replace(/\s*<=\s*/g, ' <= ')
+            .replace(/\s*>=\s*/g, ' >= ')
+            .replace(/\s*<>\s*/g, ' !== ')
+            .replace(/\s*!=\s*/g, ' !== ')
+            .replace(/\s*<\s*/g, ' < ')
+            .replace(/\s*>\s*/g, ' > ')
+            .replace(/\s*=\s*/g, ' == '); // Do this last
+        
+        // Replace boolean operators
+        jsExpression = jsExpression
+            .replace(/\bAND\b/gi, '&&')
+            .replace(/\bOR\b/gi, '||')
+            .replace(/\bNOT\b/gi, '!');
+        
+        // Replace field names with context references
+        jsExpression = jsExpression.replace(/\b(id|name|type|price|stock|sales|rating|featured|status|created)\b/g, (match) => {
+            return `context.${match}`;
+        });
+        
+        // Clean up any remaining issues
+        jsExpression = jsExpression.replace(/\s+/g, ' ').trim();
+        
+        // Evaluate the expression
+        const result = new Function('context', `return ${jsExpression}`)(context);
+        return result;
+        
+    } catch (e) {
+        console.error('Expression evaluation error:', e);
+        console.error('Original expression:', expression);
+        console.error('JavaScript expression:', jsExpression);
+        console.error('Context:', context);
+        return false;
+    }
+}
+
+// Theme configuration - Using locally available jqGrid themes
+const jqGridThemes = {
+    'classic': {
+        name: 'Classic jqGrid',
+        css: '/static/django_jqgrid/plugins/jqGrid/css/ui.jqgrid.css',
+        styleUI: 'jQueryUI'
+    },
+    'bootstrap3': {
+        name: 'Bootstrap 3',
+        css: '/static/django_jqgrid/plugins/jqGrid/css/ui.jqgrid-bootstrap.css',
+        styleUI: 'Bootstrap'
+    },
+    'bootstrap4': {
+        name: 'Bootstrap 4',
+        css: '/static/django_jqgrid/plugins/jqGrid/css/ui.jqgrid-bootstrap4.css',
+        styleUI: 'Bootstrap4'
+    },
+    'bootstrap5': {
+        name: 'Bootstrap 5',
+        css: '/static/django_jqgrid/plugins/jqGrid/css/ui.jqgrid-bootstrap5.css',
+        styleUI: 'Bootstrap5'
+    },
+    'bootstrap-ui': {
+        name: 'Bootstrap + jQuery UI',
+        css: '/static/django_jqgrid/plugins/jqGrid/css/ui.jqgrid-bootstrap-ui.css',
+        styleUI: 'Bootstrap'
+    }
+};
+
+// Add jQuery UI themes from CDN for variety
+const jqueryUIThemes = {
+    'ui-lightness': 'UI Lightness',
+    'ui-darkness': 'UI Darkness',
+    'smoothness': 'Smoothness',
+    'cupertino': 'Cupertino',
+    'redmond': 'Redmond',
+    'sunny': 'Sunny',
+    'overcast': 'Overcast',
+    'dark-hive': 'Dark Hive',
+    'flick': 'Flick',
+    'start': 'Start'
+};
+
+let currentTheme = 'bootstrap5';
+let currentUITheme = 'ui-lightness';
+let gridState = null;
+
+// Toggle theme
+function toggleTheme() {
+    showThemeSelector();
+}
+
+// Show theme selector modal
+function showThemeSelector() {
+    // Create modal if it doesn't exist
+    if ($('#themeSelectorModal').length === 0) {
+        const modalHtml = `
+            <div class="modal fade" id="themeSelectorModal" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-palette"></i> Select Grid Theme
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <h6 class="mb-3">jqGrid Themes (Local)</h6>
+                            <div class="row mb-4">
+                                ${Object.entries(jqGridThemes).map(([key, theme]) => `
+                                    <div class="col-md-4 mb-3">
+                                        <div class="theme-card border rounded p-3 ${currentTheme === key ? 'border-primary bg-light' : ''}" 
+                                             onclick="applyGridTheme('${key}')" style="cursor: pointer;">
+                                            <h6>${theme.name}</h6>
+                                            <small class="text-muted">StyleUI: ${theme.styleUI}</small>
+                                            ${currentTheme === key ? '<i class="fas fa-check text-primary float-end"></i>' : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <h6 class="mb-3">jQuery UI Themes (CDN) - For Classic jqGrid</h6>
+                            <div class="row">
+                                ${Object.entries(jqueryUIThemes).map(([key, name]) => `
+                                    <div class="col-md-3 mb-3">
+                                        <div class="theme-card border rounded p-2 ${currentUITheme === key ? 'border-info bg-light' : ''}" 
+                                             onclick="applyUITheme('${key}')" style="cursor: pointer; font-size: 0.9rem;">
+                                            <span>${name}</span>
+                                            ${currentUITheme === key ? '<i class="fas fa-check text-info float-end"></i>' : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <span class="text-muted me-auto">Note: jQuery UI themes work best with Classic jqGrid theme</span>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('body').append(modalHtml);
+    }
+    
+    $('#themeSelectorModal').modal('show');
+}
+
+// Apply jqGrid theme
+function applyGridTheme(themeName) {
+    if (!jqGridThemes[themeName]) {
+        console.error('Theme not found:', themeName);
+        return;
+    }
+    
+    // Save current grid state
+    saveGridState();
+    
+    currentTheme = themeName;
+    
+    // Update theme selector UI
+    $('.theme-card').removeClass('border-primary bg-light').find('.fa-check').remove();
+    $(`.theme-card:has(small:contains('${jqGridThemes[themeName].styleUI}'))`).addClass('border-primary bg-light')
+        .append('<i class="fas fa-check text-primary float-end"></i>');
+    
+    // Update dropdown selector
+    $('#themeSelector').val(themeName);
+    
+    // Remove existing jqGrid theme
+    $('link[href*="ui.jqgrid"]').remove();
+    
+    // Add new jqGrid theme
+    $('<link>')
+        .attr('rel', 'stylesheet')
+        .attr('href', jqGridThemes[themeName].css)
+        .insertAfter('link[href*="bootstrap.min.css"]');
+    
+    // Update grid styleUI parameter
+    gridState = gridState || {};
+    gridState.styleUI = jqGridThemes[themeName].styleUI;
+    
+    // Recreate the grid with the new theme
+    setTimeout(() => {
+        recreateGrid();
+    }, 300);
+    
+    // Save theme preference
+    localStorage.setItem('jqgrid-theme', themeName);
+    localStorage.setItem('jqgrid-styleUI', jqGridThemes[themeName].styleUI);
+    
+    console.log('Applied jqGrid theme:', jqGridThemes[themeName].name);
+}
+
+// Apply jQuery UI theme (for classic jqGrid)
+function applyUITheme(themeName) {
+    if (!jqueryUIThemes[themeName]) {
+        console.error('UI Theme not found:', themeName);
+        return;
+    }
+    
+    currentUITheme = themeName;
+    
+    // Update jQuery UI theme link
+    const $themeLink = $('link[href*="jquery-ui.css"]');
+    const newThemeUrl = `https://code.jquery.com/ui/1.13.2/themes/${themeName}/jquery-ui.css`;
+    
+    if ($themeLink.length > 0) {
+        $themeLink.attr('href', newThemeUrl);
+    } else {
+        $('<link>')
+            .attr('rel', 'stylesheet')
+            .attr('href', newThemeUrl)
+            .insertAfter('link[href*="bootstrap"]');
+    }
+    
+    // Update UI theme selector
+    $('.theme-card').find('.fa-check.text-info').parent().removeClass('border-info bg-light');
+    $(`.theme-card:has(span:contains('${jqueryUIThemes[themeName]}'))`).addClass('border-info bg-light');
+    
+    // Save UI theme preference
+    localStorage.setItem('jquery-ui-theme', themeName);
+    
+    console.log('Applied jQuery UI theme:', jqueryUIThemes[themeName]);
+}
+
+// Wrapper function for dropdown
+function applyTheme(themeName) {
+    // Check if it's a jqGrid theme or jQuery UI theme
+    if (jqGridThemes[themeName]) {
+        applyGridTheme(themeName);
+    } else if (jqueryUIThemes[themeName]) {
+        // First switch to classic jqGrid theme, then apply UI theme
+        if (currentTheme !== 'classic') {
+            applyGridTheme('classic');
+        }
+        applyUITheme(themeName);
+    }
+}
+
+// Recreate grid after theme change
+function recreateGrid() {
+    // Save current grid state before destroying
+    saveGridState();
+    
+    // Completely destroy existing grid and all associated elements
+    try {
+        // Remove all jqGrid generated elements
+        $("#allFeaturesGrid").jqGrid('GridUnload');
+    } catch(e) {
+        try {
+            $("#allFeaturesGrid").jqGrid('destroy');
+        } catch(e2) {
+            // Manual cleanup if destroy fails
+            $("#allFeaturesGrid").empty();
+        }
+    }
+    
+    // Comprehensive cleanup of all jqGrid elements
+    $("#gbox_allFeaturesGrid").remove();
+    $("#allFeaturesPager").empty();
+    $(".ui-jqdialog").remove();
+    $(".ui-widget-overlay").remove();
+    
+    // Remove all pager related elements
+    $("[id^='pg_allFeaturesPager']").remove();
+    $("[id^='toppager_allFeaturesGrid']").remove();
+    $("[id*='_pager']").remove();
+    
+    // Remove any navigation buttons and toolbars
+    $("[id*='_navButton']").remove();
+    $("[id*='_navGrid']").remove();
+    $(".navtable").remove();
+    
+    // Remove search dialog
+    $("#searchmodfbox_allFeaturesGrid").remove();
+    $("#alertmod_allFeaturesGrid").remove();
+    
+    // Remove any column chooser dialogs
+    $(".ui-jqgrid-column-chooser").remove();
+    
+    // Clean up frozen column elements
+    $("[id*='_frozen']").remove();
+    
+    // Remove any remaining grid wrappers
+    $(".ui-jqgrid").remove();
+    
+    // Recreate the table element completely
+    $("#allFeaturesGrid").remove();
+    $(".all-features-grid").html('<table id="allFeaturesGrid"></table><div id="allFeaturesPager"></div>');
+    
+    // Small delay to ensure DOM is clean
+    setTimeout(() => {
+        // Recreate the grid
+        initializeAllFeaturesGrid();
+        
+        // Restore grid state
+        if (gridState) {
+            restoreGridState();
+        }
+    }, 100);
+}
+
+// Listen for expression input changes
+$(document).ready(function() {
+    $('#filterExpression').on('input', previewExpression);
+    
+    // Load saved theme preferences
+    const savedTheme = localStorage.getItem('jqgrid-theme');
+    const savedUITheme = localStorage.getItem('jquery-ui-theme');
+    
+    if (savedTheme && jqGridThemes[savedTheme]) {
+        currentTheme = savedTheme;
+        $('#themeSelector').val(savedTheme);
+        // Don't apply theme on initial load, just use the saved preference
+        gridState = gridState || {};
+        gridState.styleUI = jqGridThemes[savedTheme].styleUI;
+    } else {
+        // Set default theme
+        $('#themeSelector').val(currentTheme);
+    }
+    
+    if (savedUITheme && jqueryUIThemes[savedUITheme]) {
+        currentUITheme = savedUITheme;
+        // Apply UI theme if using classic jqGrid
+        if (currentTheme === 'classic') {
+            applyUITheme(savedUITheme);
+        }
+    }
+});
