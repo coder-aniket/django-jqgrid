@@ -79,7 +79,32 @@ docs = [
 version = {attr = "django_jqgrid.__version__"}
 
 [tool.setuptools.packages.find]
-exclude = ["tests*", "docs*", "example_project*"]
+exclude = [
+    "tests*", 
+    "docs*", 
+    "example_project*",
+    "example_env*",
+    ".venv*",
+    "venv*",
+    "env*",
+    "ENV*",
+    ".env*",
+    "virtualenv*",
+    "build*",
+    "dist*",
+    ".eggs*",
+    "*.egg-info",
+    ".claude*",
+    ".vscode*",
+    ".idea*",
+    "__pycache__*",
+    ".pytest_cache*",
+    ".mypy_cache*",
+    ".tox*",
+    ".nox*",
+    "htmlcov*",
+    ".coverage*",
+]
 
 [tool.setuptools.package-data]
 "django_jqgrid" = [

@@ -1,6 +1,6 @@
 # This file marks the directory as a Python package.
 # Version information
-__version__ = '1.0.1'
+__version__ = '1.2.0'
 
 # Package metadata
 __author__ = 'Django jqGrid Team'

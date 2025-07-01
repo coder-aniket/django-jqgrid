@@ -30,6 +30,25 @@ exclude pytest.ini
 exclude tox.ini
 exclude .coverage
 exclude setup.cfg
+exclude publish_package.py
+exclude .pypi_tokens.conf
+exclude .claude_update_prompt.txt
+exclude debug_*.py
+exclude debug_*.bat
+exclude test_*.py
+exclude publish.bat
+exclude publish.sh
+
+# Exclude virtual environments
+recursive-exclude .venv *
+recursive-exclude venv *
+recursive-exclude env *
+recursive-exclude ENV *
+recursive-exclude example_env *
+recursive-exclude .env *
+recursive-exclude virtualenv *
+
+# Exclude build and cache directories
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude * .DS_Store
@@ -37,4 +56,30 @@ recursive-exclude * .git*
 recursive-exclude * .mypy_cache
 recursive-exclude * .pytest_cache
 recursive-exclude * *.egg-info
+recursive-exclude build *
+recursive-exclude dist *
+recursive-exclude .eggs *
+recursive-exclude htmlcov *
+recursive-exclude .tox *
+recursive-exclude .nox *
+recursive-exclude .hypothesis *
+recursive-exclude .coverage.* *
+
+# Exclude IDE and editor files
+recursive-exclude .vscode *
+recursive-exclude .idea *
+recursive-exclude .claude *
+recursive-exclude * *.swp
+recursive-exclude * *.swo
+recursive-exclude * *~
+recursive-exclude * *.orig
+recursive-exclude * *.bak
+recursive-exclude * *.tmp
+
+# Exclude example project and tests from package
 recursive-exclude example_project *
+recursive-exclude tests * 
+
+# Exclude documentation build
+recursive-exclude docs/_build *
+recursive-exclude site *
