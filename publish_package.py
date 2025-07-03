@@ -327,6 +327,9 @@ TESTPYPI_TOKEN = pypi-YOUR_TEST_TOKEN_HERE
             except KeyboardInterrupt:
                 print(f"\n{Colors.YELLOW}👋 Goodbye!{Colors.NC}")
                 break
+            except EOFError:
+                print(f"\n{Colors.YELLOW}⚠️  Input stream closed. Exiting...{Colors.NC}")
+                break
             
             if choice == '1':
                 self.quick_publish_pypi()
@@ -348,7 +351,10 @@ TESTPYPI_TOKEN = pypi-YOUR_TEST_TOKEN_HERE
             else:
                 self.print_colored("❌ Invalid choice! Please enter 1-8.", Colors.RED)
             
-            input(f"\n{Colors.YELLOW}Press Enter to continue...{Colors.NC}")
+            try:
+                input(f"\n{Colors.YELLOW}Press Enter to continue...{Colors.NC}")
+            except (EOFError, KeyboardInterrupt):
+                break
     
     def quick_publish_pypi(self):
         """Quick publish to PyPI"""
@@ -377,7 +383,11 @@ TESTPYPI_TOKEN = pypi-YOUR_TEST_TOKEN_HERE
         print(f"{Colors.CYAN}4.{Colors.NC} Custom version")
         print(f"{Colors.CYAN}5.{Colors.NC} Back to main menu")
         
-        bump_choice = input(f"\n{Colors.BOLD}Enter your choice (1-5):{Colors.NC} ").strip()
+        try:
+            bump_choice = input(f"\n{Colors.BOLD}Enter your choice (1-5):{Colors.NC} ").strip()
+        except (EOFError, KeyboardInterrupt):
+            self.print_colored("\n⚠️  Input interrupted.", Colors.YELLOW)
+            return
         
         if bump_choice == '5':
             return
@@ -390,9 +400,13 @@ TESTPYPI_TOKEN = pypi-YOUR_TEST_TOKEN_HERE
         elif bump_choice == '3':
             new_version = self.bump_version('major')
         elif bump_choice == '4':
-            custom = input(f"{Colors.BOLD}Enter new version:{Colors.NC} ").strip()
-            if custom:
-                new_version = self.bump_version('custom', custom)
+            try:
+                custom = input(f"{Colors.BOLD}Enter new version:{Colors.NC} ").strip()
+                if custom:
+                    new_version = self.bump_version('custom', custom)
+            except (EOFError, KeyboardInterrupt):
+                self.print_colored("\n⚠️  Input interrupted.", Colors.YELLOW)
+                return
         else:
             self.print_colored("❌ Invalid choice!", Colors.RED)
             return
@@ -406,7 +420,11 @@ TESTPYPI_TOKEN = pypi-YOUR_TEST_TOKEN_HERE
         print(f"{Colors.CYAN}3.{Colors.NC} Both (TestPyPI first)")
         print(f"{Colors.CYAN}4.{Colors.NC} Cancel")
         
-        pub_choice = input(f"\n{Colors.BOLD}Enter your choice (1-4):{Colors.NC} ").strip()
+        try:
+            pub_choice = input(f"\n{Colors.BOLD}Enter your choice (1-4):{Colors.NC} ").strip()
+        except (EOFError, KeyboardInterrupt):
+            self.print_colored("\n⚠️  Input interrupted.", Colors.YELLOW)
+            return
         
         if pub_choice == '4':
             return
@@ -421,9 +439,13 @@ TESTPYPI_TOKEN = pypi-YOUR_TEST_TOKEN_HERE
             self.upload_to_testpypi()
         elif pub_choice == '3':
             if self.upload_to_testpypi():
-                continue_to_pypi = input(f"\n{Colors.BOLD}Continue to PyPI? (y/n):{Colors.NC} ").strip().lower()
-                if continue_to_pypi == 'y':
-                    self.upload_to_pypi()
+                try:
+                    continue_to_pypi = input(f"\n{Colors.BOLD}Continue to PyPI? (y/n):{Colors.NC} ").strip().lower()
+                    if continue_to_pypi == 'y':
+                        self.upload_to_pypi()
+                except (EOFError, KeyboardInterrupt):
+                    self.print_colored("\n⚠️  Input interrupted. Skipping PyPI upload.", Colors.YELLOW)
+                    self.print_colored("💡 To upload to PyPI later, run the script again and choose option 1", Colors.CYAN)
     
     def build_only(self):
         """Build package without uploading"""

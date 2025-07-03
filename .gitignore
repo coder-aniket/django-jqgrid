@@ -170,5 +170,5 @@ build/
 publish.bat
 publish.sh
 /.pypi_tokens.conf
-/.claude/
-/.claude/
+.claude/
+example_env/

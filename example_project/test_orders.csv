@@ -1,0 +1,5 @@
+Order Number,Customer,Order Date,Status,Subtotal,Tax Amount,Shipping Cost,Total Amount,Tracking Number
+"ORD-2024-001","john.doe@example.com","2024-01-15","shipped","100.00","8.00","9.99","117.99","TRK123456"
+"ORD-2024-002","jane.smith@example.com","2024-01-20","delivered","250.00","20.00","0.00","270.00","TRK234567"
+"ORD-2024-003","mike.johnson@example.com","2024-01-25","processing","75.50","6.04","9.99","91.53",""
+"ORD-2024-004","sarah.williams@example.com","2024-02-01","pending","199.99","16.00","0.00","215.99",""

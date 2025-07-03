@@ -1,0 +1,4 @@
+Product Name,SKU,Price,Stock,Status,Category,Description
+"Test Product 1","TST-001","29.99","100","active","Electronics","A test electronic product"
+"Test Product 2","TST-002","19.99","50","active","Books","A test book"
+"Test Product 3","TST-003","39.99","25","active","Clothing","A test clothing item"

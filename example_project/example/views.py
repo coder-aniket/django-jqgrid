@@ -10,6 +10,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
+from django.core.paginator import Paginator
+from django.db.models import Q, Count
+from django.db import models
 
 from .models import Category, Product, Customer, Order, OrderItem
 from .serializers import (
@@ -17,6 +21,11 @@ from .serializers import (
     CustomerSerializer, CustomerListSerializer, 
     OrderSerializer, OrderListSerializer
 )
+from .grid_config import (
+    get_products_grid_config, get_customers_grid_config,
+    get_orders_grid_config, get_categories_grid_config
+)
+from .jqgrid_pagination import JqGridPagination
 
 
 # Template views for displaying jqGrid examples
@@ -61,75 +70,91 @@ def index(request):
 
 
 def products_grid(request):
-    """Products grid page."""
+    """Products grid page with advanced features."""
     context = {
-        'title': 'Products Grid Example',
-        'description': 'Comprehensive product management grid showcasing various field types and features.',
+        'title': 'Products',
+        'description': 'Comprehensive product management grid with all advanced features enabled.',
         'grid_id': 'productsGrid',
-        'api_url': '/api/example/products/',
+        'api_url': '/examples/api/products/',
+        'config_url': '/examples/api/products/grid_config/',
         'features': [
             'Multi-column sorting',
-            'Advanced filtering',
+            'Advanced filtering', 
+            'Bulk operations',
+            'Export/Import',
+            'Conditional formatting',
+            'Inline editing',
             'Custom formatters',
-            'Boolean field handling',
-            'Foreign key relationships',
-            'Status indicators'
+            'Column management'
         ]
     }
-    return render(request, 'example/products_grid.html', context)
+    return render(request, 'example/advanced_grid.html', context)
 
 
 def customers_grid(request):
-    """Customers grid page."""
+    """Customers grid page with advanced features."""
     context = {
-        'title': 'Customers Grid Example',
-        'description': 'Customer management grid with search and relationship display.',
+        'title': 'Customers',
+        'description': 'Advanced customer management grid with comprehensive features.',
         'grid_id': 'customersGrid',
-        'api_url': '/api/example/customers/',
+        'api_url': '/examples/api/customers/',
+        'config_url': '/examples/api/customers/grid_config/',
         'features': [
             'Full-text search',
             'Address handling',
             'Customer type filtering',
-            'Registration date sorting',
-            'Order count display'
+            'Bulk email operations',
+            'Contact management',
+            'Registration tracking',
+            'Order history',
+            'Export contacts'
         ]
     }
-    return render(request, 'example/customers_grid.html', context)
+    return render(request, 'example/advanced_grid.html', context)
 
 
 def orders_grid(request):
-    """Orders grid page."""
+    """Orders grid page with advanced features."""
     context = {
-        'title': 'Orders Grid Example',
-        'description': 'Order tracking grid with financial data and status management.',
+        'title': 'Orders',
+        'description': 'Advanced order management grid with comprehensive tracking and processing features.',
         'grid_id': 'ordersGrid',
-        'api_url': '/api/example/orders/',
+        'api_url': '/examples/api/orders/',
+        'config_url': '/examples/api/orders/grid_config/',
         'features': [
             'Financial data formatting',
-            'Status workflow',
-            'Date range filtering',
-            'Customer information',
-            'Order tracking'
+            'Status workflow management',
+            'Bulk order processing',
+            'Invoice generation',
+            'Shipping management',
+            'Payment tracking',
+            'Order analytics',
+            'Export capabilities'
         ]
     }
-    return render(request, 'example/orders_grid.html', context)
+    return render(request, 'example/advanced_grid.html', context)
 
 
 def categories_grid(request):
-    """Categories grid page."""
+    """Categories grid page with advanced features."""
     context = {
-        'title': 'Categories Grid Example',
-        'description': 'Simple category management grid demonstrating basic CRUD operations.',
+        'title': 'Categories',
+        'description': 'Advanced category management grid with hierarchical organization and bulk operations.',
         'grid_id': 'categoriesGrid',
-        'api_url': '/api/example/categories/',
+        'api_url': '/examples/api/categories/',
+        'config_url': '/examples/api/categories/grid_config/',
         'features': [
-            'Basic CRUD operations',
-            'Simple filtering',
-            'Count relationships',
-            'Active/inactive toggle'
+            'Hierarchical categories',
+            'Bulk operations',
+            'Sort ordering',
+            'Active/inactive toggle',
+            'Product count tracking',
+            'URL slug management',
+            'Drag & drop reordering',
+            'Category statistics'
         ]
     }
-    return render(request, 'example/categories_grid.html', context)
+    return render(request, 'example/advanced_grid.html', context)
 
 
 def advanced_features(request):
@@ -222,6 +247,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    pagination_class = JqGridPagination  # Use jqGrid-compatible pagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['active']
     search_fields = ['name', 'description']
@@ -230,70 +256,269 @@ class CategoryViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def grid_config(self, request):
-        """Return grid configuration for jqGrid."""
-        config = {
-            'caption': 'Categories',
-            'colModel': [
-                {
-                    'name': 'id',
-                    'index': 'id',
-                    'width': 60,
-                    'sortable': True,
-                    'hidden': True,
-                    'key': True
-                },
-                {
-                    'name': 'name',
-                    'index': 'name',
-                    'width': 200,
-                    'sortable': True,
-                    'editable': True,
-                    'editrules': {'required': True}
-                },
-                {
-                    'name': 'description',
-                    'index': 'description', 
-                    'width': 300,
-                    'sortable': False,
-                    'editable': True,
-                    'edittype': 'textarea'
-                },
-                {
-                    'name': 'active',
-                    'index': 'active',
-                    'width': 80,
-                    'sortable': True,
-                    'editable': True,
-                    'edittype': 'checkbox',
-                    'formatter': 'checkbox'
-                },
-                {
-                    'name': 'product_count',
-                    'index': 'product_count',
-                    'width': 100,
-                    'sortable': False,
-                    'editable': False,
-                    'align': 'center'
-                },
-                {
-                    'name': 'created_at',
-                    'index': 'created_at',
-                    'width': 120,
-                    'sortable': True,
-                    'editable': False,
-                    'formatter': 'date',
-                    'formatoptions': {'newformat': 'Y-m-d'}
-                }
-            ],
-            'pager': True,
-            'rowNum': 25,
-            'sortname': 'name',
-            'sortorder': 'asc',
-            'viewrecords': True,
-            'autowidth': True,
-            'height': 400
-        }
-        return Response(config)
+        """Return comprehensive grid configuration for jqGrid."""
+        return Response(get_categories_grid_config())
+    
+    @action(detail=False, methods=['get'])
+    def dropdown(self, request):
+        """Return dropdown options for select fields."""
+        categories = self.get_queryset().filter(active=True)
+        options = [{"value": "", "text": "Select Category"}]
+        for category in categories:
+            options.append({"value": str(category.id), "text": category.name})
+        return Response(options)
+    
+    @action(detail=False, methods=['post'])
+    def bulk_update(self, request):
+        """Bulk update multiple records."""
+        try:
+            ids = request.data.get('ids', [])
+            update_data = request.data.get('data', {})
+            
+            if not ids:
+                return Response({'error': 'No IDs provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Remove empty values
+            update_data = {k: v for k, v in update_data.items() if v not in ['', None]}
+            
+            if not update_data:
+                return Response({'error': 'No update data provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            updated_count = self.get_queryset().filter(id__in=ids).update(**update_data)
+            
+            return Response({
+                'success': True,
+                'updated_count': updated_count,
+                'message': f'Successfully updated {updated_count} records'
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['post'])
+    def bulk_delete(self, request):
+        """Bulk delete multiple records."""
+        try:
+            ids = request.data.get('ids', [])
+            
+            if not ids:
+                return Response({'error': 'No IDs provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            deleted_count, _ = self.get_queryset().filter(id__in=ids).delete()
+            
+            return Response({
+                'success': True,
+                'deleted_count': deleted_count,
+                'message': f'Successfully deleted {deleted_count} records'
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['get'])
+    def export(self, request):
+        """Export data in various formats."""
+        try:
+            format_type = request.GET.get('format', 'csv')
+            ids = request.GET.get('ids', '').split(',') if request.GET.get('ids') else None
+            
+            queryset = self.get_queryset()
+            if ids and ids[0]:  # Check if ids is not empty
+                queryset = queryset.filter(id__in=ids)
+            
+            # Apply filters if provided
+            filters = request.GET.get('filters')
+            if filters:
+                # Apply search filters (simplified implementation)
+                import json
+                try:
+                    filter_data = json.loads(filters)
+                    # Implement filter logic based on your needs
+                except json.JSONDecodeError:
+                    pass
+            
+            # Generate export based on format
+            if format_type == 'csv':
+                return self._export_csv(queryset)
+            elif format_type == 'xlsx':
+                return self._export_excel(queryset)
+            elif format_type == 'json':
+                return self._export_json(queryset)
+            else:
+                return Response({'error': 'Unsupported format'}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def _export_csv(self, queryset):
+        """Export queryset as CSV."""
+        import csv
+        from django.http import HttpResponse
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="categories.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['ID', 'Name', 'Description', 'Active', 'Created At'])
+        
+        for obj in queryset:
+            writer.writerow([
+                obj.id,
+                obj.name,
+                obj.description or '',
+                'Yes' if obj.active else 'No',
+                obj.created_at.strftime('%Y-%m-%d %H:%M:%S') if obj.created_at else ''
+            ])
+        
+        return response
+    
+    def _export_excel(self, queryset):
+        """Export queryset as Excel."""
+        from django.http import HttpResponse
+        try:
+            import openpyxl
+            from openpyxl import Workbook
+            
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Categories"
+            
+            # Headers
+            headers = ['ID', 'Name', 'Description', 'Active', 'Created At']
+            ws.append(headers)
+            
+            # Data
+            for obj in queryset:
+                ws.append([
+                    obj.id,
+                    obj.name,
+                    obj.description or '',
+                    'Yes' if obj.active else 'No',
+                    obj.created_at.strftime('%Y-%m-%d %H:%M:%S') if obj.created_at else ''
+                ])
+            
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = 'attachment; filename="categories.xlsx"'
+            wb.save(response)
+            return response
+            
+        except ImportError:
+            return Response({'error': 'Excel export not available (openpyxl required)'}, status=status.HTTP_501_NOT_IMPLEMENTED)
+    
+    def _export_json(self, queryset):
+        """Export queryset as JSON."""
+        from django.http import JsonResponse
+        
+        data = []
+        for obj in queryset:
+            data.append({
+                'id': obj.id,
+                'name': obj.name,
+                'description': obj.description,
+                'active': obj.active,
+                'created_at': obj.created_at.isoformat() if obj.created_at else None
+            })
+        
+        response = JsonResponse(data, safe=False)
+        response['Content-Disposition'] = 'attachment; filename="categories.json"'
+        return response
+    
+    @action(detail=False, methods=['get'])
+    def export_data(self, request):
+        """Export data endpoint compatible with jqgrid-import-export.js"""
+        try:
+            format_type = request.GET.get('ext', 'csv')
+            ids = request.GET.get('ids', '').split(',') if request.GET.get('ids') else None
+            columns = request.GET.get('columns', 'all')
+            
+            queryset = self.get_queryset()
+            if ids and ids[0]:
+                queryset = queryset.filter(id__in=ids)
+            
+            # Generate export based on format
+            if format_type == 'csv':
+                return self._export_csv(queryset)
+            elif format_type in ['xlsx', 'xls']:
+                return self._export_excel(queryset)
+            elif format_type == 'json':
+                return self._export_json(queryset)
+            else:
+                return Response({'error': 'Unsupported format'}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['post'])
+    def import_data(self, request):
+        """Import data endpoint compatible with jqgrid-import-export.js"""
+        try:
+            import_file = request.FILES.get('import_file')
+            if not import_file:
+                return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get mapping configuration
+            mapped_columns = request.POST.get('mapped_columns', '{}')
+            default_values = request.POST.get('default_values', '{}')
+            
+            try:
+                import json
+                mapped_columns = json.loads(mapped_columns)
+                default_values = json.loads(default_values)
+            except json.JSONDecodeError:
+                return Response({'error': 'Invalid mapping configuration'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Process the file (this is a simplified implementation)
+            # In a real implementation, you would parse CSV/Excel and create records
+            imported_count = 0
+            
+            # Example: Parse CSV file
+            if import_file.name.endswith('.csv'):
+                import csv
+                import io
+                
+                # Read file content
+                file_content = import_file.read().decode('utf-8')
+                csv_reader = csv.DictReader(io.StringIO(file_content))
+                
+                for row in csv_reader:
+                    try:
+                        # Create category data based on mapping
+                        category_data = {}
+                        
+                        # Apply mapped columns
+                        for field_name, header_name in mapped_columns.items():
+                            if header_name and header_name in row:
+                                value = row[header_name].strip()
+                                # Handle boolean conversion for active field
+                                if field_name == 'active':
+                                    category_data[field_name] = value.lower() in ['true', '1', 'yes', 'on']
+                                else:
+                                    category_data[field_name] = value
+                        
+                        # Apply default values
+                        for field_name, default_value in default_values.items():
+                            if default_value and field_name not in category_data:
+                                if field_name == 'active':
+                                    category_data[field_name] = default_value.lower() in ['true', '1', 'yes', 'on']
+                                else:
+                                    category_data[field_name] = default_value
+                        
+                        # Create category if we have required fields
+                        if 'name' in category_data and category_data['name']:
+                            Category.objects.create(**category_data)
+                            imported_count += 1
+                            
+                    except Exception as e:
+                        # Log error but continue processing
+                        print(f"Error importing row: {e}")
+                        continue
+            
+            return Response({
+                'status': True,
+                'message': f'Successfully imported {imported_count} categories',
+                'imported_count': imported_count
+            })
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -301,6 +526,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     ViewSet for Product model demonstrating comprehensive jqGrid features.
     """
     queryset = Product.objects.select_related('category', 'created_by').all()
+    pagination_class = JqGridPagination  # Use jqGrid-compatible pagination
     
     def get_serializer_class(self):
         """Use different serializers for list vs detail views."""
@@ -316,100 +542,144 @@ class ProductViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def grid_config(self, request):
-        """Return grid configuration for products jqGrid."""
-        config = {
-            'caption': 'Products',
-            'colModel': [
-                {
-                    'name': 'id',
-                    'index': 'id',
-                    'width': 60,
-                    'sortable': True,
-                    'hidden': True,
-                    'key': True
-                },
-                {
-                    'name': 'name',
-                    'index': 'name',
-                    'width': 200,
-                    'sortable': True,
-                    'editable': True,
-                    'editrules': {'required': True}
-                },
-                {
-                    'name': 'sku',
-                    'index': 'sku',
-                    'width': 100,
-                    'sortable': True,
-                    'editable': True,
-                    'editrules': {'required': True, 'unique': True}
-                },
-                {
-                    'name': 'formatted_price',
-                    'index': 'price',
-                    'width': 100,
-                    'sortable': True,
-                    'align': 'right',
-                    'editable': False
-                },
-                {
-                    'name': 'stock_quantity',
-                    'index': 'stock_quantity',
-                    'width': 100,
-                    'sortable': True,
-                    'align': 'center',
-                    'editable': True,
-                    'editrules': {'number': True, 'minValue': 0}
-                },
-                {
-                    'name': 'stock_status',
-                    'index': 'stock_status',
-                    'width': 100,
-                    'sortable': False,
-                    'align': 'center',
-                    'editable': False,
-                    'formatter': 'select',
-                    'formatoptions': {
-                        'value': 'Out of Stock:danger;Low Stock:warning;In Stock:success'
-                    }
-                },
-                {
-                    'name': 'status_display',
-                    'index': 'status',
-                    'width': 100,
-                    'sortable': True,
-                    'align': 'center',
-                    'editable': False
-                },
-                {
-                    'name': 'category_name',
-                    'index': 'category__name',
-                    'width': 120,
-                    'sortable': True,
-                    'editable': False
-                },
-                {
-                    'name': 'is_featured',
-                    'index': 'is_featured',
-                    'width': 80,
-                    'sortable': True,
-                    'editable': True,
-                    'edittype': 'checkbox',
-                    'formatter': 'checkbox',
-                    'align': 'center'
-                }
-            ],
-            'pager': True,
-            'rowNum': 25,
-            'sortname': 'created_at',
-            'sortorder': 'desc',
-            'viewrecords': True,
-            'autowidth': True,
-            'height': 500,
-            'multiselect': True,
-            'rownumbers': True
-        }
-        return Response(config)
+        """Return comprehensive grid configuration for products jqGrid."""
+        return Response(get_products_grid_config())
+    
+    @action(detail=False, methods=['get'])
+    def dropdown(self, request):
+        """Return dropdown options for select fields."""
+        products = self.get_queryset().filter(status='active')
+        options = [{"value": "", "text": "Select Product"}]
+        for product in products:
+            options.append({"value": str(product.id), "text": f"{product.name} ({product.sku})"})
+        return Response(options)
+    
+    @action(detail=False, methods=['get'])
+    def export_data(self, request):
+        """Export data endpoint compatible with jqgrid-import-export.js"""
+        try:
+            format_type = request.GET.get('ext', 'csv')
+            ids = request.GET.get('ids', '').split(',') if request.GET.get('ids') else None
+            
+            queryset = self.get_queryset()
+            if ids and ids[0]:
+                queryset = queryset.filter(id__in=ids)
+            
+            # Generate CSV export for products
+            if format_type == 'csv':
+                import csv
+                from django.http import HttpResponse
+                
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="products.csv"'
+                
+                writer = csv.writer(response)
+                writer.writerow(['ID', 'Name', 'SKU', 'Price', 'Stock Quantity', 'Status', 'Category', 'Created At'])
+                
+                for obj in queryset:
+                    writer.writerow([
+                        obj.id,
+                        obj.name,
+                        obj.sku,
+                        str(obj.price),
+                        obj.stock_quantity,
+                        obj.status,
+                        obj.category.name if obj.category else '',
+                        obj.created_at.strftime('%Y-%m-%d %H:%M:%S') if obj.created_at else ''
+                    ])
+                return response
+            else:
+                return Response({'error': 'Only CSV format supported for products'}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['post'])
+    def import_data(self, request):
+        """Import data endpoint compatible with jqgrid-import-export.js"""
+        try:
+            import_file = request.FILES.get('import_file')
+            if not import_file:
+                return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get mapping configuration
+            mapped_columns = request.POST.get('mapped_columns', '{}')
+            default_values = request.POST.get('default_values', '{}')
+            
+            try:
+                import json
+                mapped_columns = json.loads(mapped_columns)
+                default_values = json.loads(default_values)
+            except json.JSONDecodeError:
+                return Response({'error': 'Invalid mapping configuration'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            imported_count = 0
+            
+            # Parse CSV file
+            if import_file.name.endswith('.csv'):
+                import csv
+                import io
+                from decimal import Decimal
+                
+                file_content = import_file.read().decode('utf-8')
+                csv_reader = csv.DictReader(io.StringIO(file_content))
+                
+                for row in csv_reader:
+                    try:
+                        product_data = {}
+                        
+                        # Apply mapped columns
+                        for field_name, header_name in mapped_columns.items():
+                            if header_name and header_name in row:
+                                value = row[header_name]
+                                # Handle specific field types
+                                if field_name == 'price' and value:
+                                    product_data[field_name] = Decimal(str(value))
+                                elif field_name == 'stock_quantity' and value:
+                                    product_data[field_name] = int(value)
+                                elif field_name == 'category' and value:
+                                    # Try to find category by name
+                                    try:
+                                        category = Category.objects.get(name=value)
+                                        product_data['category_id'] = category.id
+                                    except Category.DoesNotExist:
+                                        pass
+                                else:
+                                    product_data[field_name] = value
+                        
+                        # Apply default values
+                        for field_name, default_value in default_values.items():
+                            if default_value and field_name not in product_data:
+                                if field_name == 'price':
+                                    product_data[field_name] = Decimal(str(default_value))
+                                elif field_name == 'stock_quantity':
+                                    product_data[field_name] = int(default_value)
+                                else:
+                                    product_data[field_name] = default_value
+                        
+                        # Set default category if not provided
+                        if 'category_id' not in product_data and 'category' not in product_data:
+                            default_category = Category.objects.first()
+                            if default_category:
+                                product_data['category_id'] = default_category.id
+                        
+                        # Create product if we have required fields
+                        if 'name' in product_data and 'sku' in product_data:
+                            Product.objects.create(**product_data)
+                            imported_count += 1
+                            
+                    except Exception as e:
+                        print(f"Error importing product row: {e}")
+                        continue
+            
+            return Response({
+                'status': True,
+                'message': f'Successfully imported {imported_count} products',
+                'imported_count': imported_count
+            })
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
@@ -417,6 +687,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
     ViewSet for Customer model demonstrating user management features.
     """
     queryset = Customer.objects.all()
+    pagination_class = JqGridPagination  # Use jqGrid-compatible pagination
     
     def get_serializer_class(self):
         if self.action == 'list':
@@ -431,100 +702,132 @@ class CustomerViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def grid_config(self, request):
-        """Return grid configuration for customers jqGrid."""
-        config = {
-            'caption': 'Customers',
-            'colModel': [
-                {
-                    'name': 'id',
-                    'index': 'id',
-                    'width': 60,
-                    'sortable': True,
-                    'hidden': True,
-                    'key': True
-                },
-                {
-                    'name': 'full_name',
-                    'index': 'last_name',
-                    'width': 150,
-                    'sortable': True,
-                    'editable': False
-                },
-                {
-                    'name': 'email',
-                    'index': 'email',
-                    'width': 200,
-                    'sortable': True,
-                    'editable': True,
-                    'editrules': {'required': True, 'email': True}
-                },
-                {
-                    'name': 'phone',
-                    'index': 'phone',
-                    'width': 120,
-                    'sortable': False,
-                    'editable': True
-                },
-                {
-                    'name': 'city',
-                    'index': 'city',
-                    'width': 100,
-                    'sortable': True,
-                    'editable': True
-                },
-                {
-                    'name': 'state',
-                    'index': 'state',
-                    'width': 80,
-                    'sortable': True,
-                    'editable': True
-                },
-                {
-                    'name': 'customer_type_display',
-                    'index': 'customer_type',
-                    'width': 100,
-                    'sortable': True,
-                    'align': 'center',
-                    'editable': False
-                },
-                {
-                    'name': 'is_active',
-                    'index': 'is_active',
-                    'width': 80,
-                    'sortable': True,
-                    'editable': True,
-                    'edittype': 'checkbox',
-                    'formatter': 'checkbox',
-                    'align': 'center'
-                },
-                {
-                    'name': 'order_count',
-                    'index': 'order_count',
-                    'width': 100,
-                    'sortable': False,
-                    'align': 'center',
-                    'editable': False
-                },
-                {
-                    'name': 'registration_date',
-                    'index': 'registration_date',
-                    'width': 120,
-                    'sortable': True,
-                    'editable': False,
-                    'formatter': 'date',
-                    'formatoptions': {'newformat': 'Y-m-d'}
-                }
-            ],
-            'pager': True,
-            'rowNum': 25,
-            'sortname': 'last_name',
-            'sortorder': 'asc',
-            'viewrecords': True,
-            'autowidth': True,
-            'height': 450,
-            'multiselect': True
-        }
-        return Response(config)
+        """Return comprehensive grid configuration for customers jqGrid."""
+        return Response(get_customers_grid_config())
+    
+    @action(detail=False, methods=['get'])
+    def dropdown(self, request):
+        """Return dropdown options for select fields."""
+        customers = self.get_queryset().filter(is_active=True)
+        options = [{"value": "", "text": "Select Customer"}]
+        for customer in customers:
+            options.append({"value": str(customer.id), "text": f"{customer.first_name} {customer.last_name}"})
+        return Response(options)
+    
+    @action(detail=False, methods=['get'])
+    def export_data(self, request):
+        """Export data endpoint compatible with jqgrid-import-export.js"""
+        try:
+            format_type = request.GET.get('ext', 'csv')
+            ids = request.GET.get('ids', '').split(',') if request.GET.get('ids') else None
+            
+            queryset = self.get_queryset()
+            if ids and ids[0]:
+                queryset = queryset.filter(id__in=ids)
+            
+            if format_type == 'csv':
+                import csv
+                from django.http import HttpResponse
+                
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="customers.csv"'
+                
+                writer = csv.writer(response)
+                writer.writerow(['ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Customer Type', 'Active', 'City', 'State', 'Registration Date'])
+                
+                for obj in queryset:
+                    writer.writerow([
+                        obj.id,
+                        obj.first_name,
+                        obj.last_name,
+                        obj.email,
+                        obj.phone or '',
+                        obj.customer_type,
+                        'Yes' if obj.is_active else 'No',
+                        obj.city or '',
+                        obj.state or '',
+                        obj.registration_date.strftime('%Y-%m-%d') if obj.registration_date else ''
+                    ])
+                return response
+            else:
+                return Response({'error': 'Only CSV format supported for customers'}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['post'])
+    def import_data(self, request):
+        """Import data endpoint compatible with jqgrid-import-export.js"""
+        try:
+            import_file = request.FILES.get('import_file')
+            if not import_file:
+                return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get mapping configuration
+            mapped_columns = request.POST.get('mapped_columns', '{}')
+            default_values = request.POST.get('default_values', '{}')
+            
+            try:
+                import json
+                mapped_columns = json.loads(mapped_columns)
+                default_values = json.loads(default_values)
+            except json.JSONDecodeError:
+                return Response({'error': 'Invalid mapping configuration'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            imported_count = 0
+            
+            # Parse CSV file
+            if import_file.name.endswith('.csv'):
+                import csv
+                import io
+                from decimal import Decimal
+                
+                file_content = import_file.read().decode('utf-8')
+                csv_reader = csv.DictReader(io.StringIO(file_content))
+                
+                for row in csv_reader:
+                    try:
+                        customer_data = {}
+                        
+                        # Apply mapped columns
+                        for field_name, header_name in mapped_columns.items():
+                            if header_name and header_name in row:
+                                value = row[header_name].strip()
+                                # Handle specific field types
+                                if field_name == 'is_active':
+                                    customer_data[field_name] = value.lower() in ['true', '1', 'yes', 'active']
+                                elif field_name == 'credit_limit' and value:
+                                    customer_data[field_name] = Decimal(str(value))
+                                else:
+                                    customer_data[field_name] = value
+                        
+                        # Apply default values
+                        for field_name, default_value in default_values.items():
+                            if default_value and field_name not in customer_data:
+                                if field_name == 'is_active':
+                                    customer_data[field_name] = default_value.lower() in ['true', '1', 'yes', 'active']
+                                elif field_name == 'credit_limit':
+                                    customer_data[field_name] = Decimal(str(default_value))
+                                else:
+                                    customer_data[field_name] = default_value
+                        
+                        # Create customer if we have required fields
+                        if all(field in customer_data for field in ['first_name', 'last_name', 'email']):
+                            Customer.objects.create(**customer_data)
+                            imported_count += 1
+                            
+                    except Exception as e:
+                        print(f"Error importing customer row: {e}")
+                        continue
+            
+            return Response({
+                'status': True,
+                'message': f'Successfully imported {imported_count} customers',
+                'imported_count': imported_count
+            })
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -532,6 +835,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     ViewSet for Order model demonstrating financial data and relationships.
     """
     queryset = Order.objects.select_related('customer').all()
+    pagination_class = JqGridPagination  # Use jqGrid-compatible pagination
     
     def get_serializer_class(self):
         if self.action == 'list':
@@ -546,80 +850,17 @@ class OrderViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def grid_config(self, request):
-        """Return grid configuration for orders jqGrid."""
-        config = {
-            'caption': 'Orders',
-            'colModel': [
-                {
-                    'name': 'id',
-                    'index': 'id',
-                    'width': 60,
-                    'sortable': True,
-                    'hidden': True,
-                    'key': True
-                },
-                {
-                    'name': 'order_number',
-                    'index': 'order_number',
-                    'width': 120,
-                    'sortable': True,
-                    'editable': True,
-                    'editrules': {'required': True}
-                },
-                {
-                    'name': 'customer_name',
-                    'index': 'customer__last_name',
-                    'width': 150,
-                    'sortable': True,
-                    'editable': False
-                },
-                {
-                    'name': 'status_display',
-                    'index': 'status',
-                    'width': 100,
-                    'sortable': True,
-                    'align': 'center',
-                    'editable': False,
-                    'formatter': 'select',
-                    'formatoptions': {
-                        'value': 'Pending:info;Processing:warning;Shipped:primary;Delivered:success;Cancelled:danger'
-                    }
-                },
-                {
-                    'name': 'order_date',
-                    'index': 'order_date',
-                    'width': 120,
-                    'sortable': True,
-                    'editable': False,
-                    'formatter': 'date',
-                    'formatoptions': {'newformat': 'Y-m-d H:i'}
-                },
-                {
-                    'name': 'formatted_total',
-                    'index': 'total_amount',
-                    'width': 100,
-                    'sortable': True,
-                    'align': 'right',
-                    'editable': False
-                },
-                {
-                    'name': 'tracking_number',
-                    'index': 'tracking_number',
-                    'width': 150,
-                    'sortable': False,
-                    'editable': True
-                }
-            ],
-            'pager': True,
-            'rowNum': 25,
-            'sortname': 'order_date',
-            'sortorder': 'desc',
-            'viewrecords': True,
-            'autowidth': True,
-            'height': 400,
-            'multiselect': True
-        }
-        return Response(config)
+        """Return comprehensive grid configuration for orders jqGrid."""
+        return Response(get_orders_grid_config())
+    
+    @action(detail=False, methods=['get'])
+    def dropdown(self, request):
+        """Return dropdown options for select fields."""
+        orders = self.get_queryset()
+        options = [{"value": "", "text": "Select Order"}]
+        for order in orders:
+            options.append({"value": str(order.id), "text": f"{order.order_number} - {order.customer_name}"})
+        return Response(options)
     
     @action(detail=False, methods=['get'])
     def status_summary(self, request):
@@ -632,6 +873,152 @@ class OrderViewSet(viewsets.ModelViewSet):
         )
         
         return Response(list(summary))
+    
+    @action(detail=False, methods=['get'])
+    def export_data(self, request):
+        """Export data endpoint compatible with jqgrid-import-export.js"""
+        try:
+            format_type = request.GET.get('ext', 'csv')
+            ids = request.GET.get('ids', '').split(',') if request.GET.get('ids') else None
+            
+            queryset = self.get_queryset()
+            if ids and ids[0]:
+                queryset = queryset.filter(id__in=ids)
+            
+            if format_type == 'csv':
+                import csv
+                from django.http import HttpResponse
+                
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="orders.csv"'
+                
+                writer = csv.writer(response)
+                writer.writerow(['ID', 'Order Number', 'Customer', 'Order Date', 'Status', 'Subtotal', 'Tax Amount', 'Shipping Cost', 'Total Amount', 'Tracking Number'])
+                
+                for obj in queryset:
+                    writer.writerow([
+                        obj.id,
+                        obj.order_number,
+                        f"{obj.customer.first_name} {obj.customer.last_name}" if obj.customer else '',
+                        obj.order_date.strftime('%Y-%m-%d') if obj.order_date else '',
+                        obj.status,
+                        str(obj.subtotal),
+                        str(obj.tax_amount),
+                        str(obj.shipping_cost),
+                        str(obj.total_amount),
+                        obj.tracking_number or ''
+                    ])
+                return response
+            else:
+                return Response({'error': 'Only CSV format supported for orders'}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['post'])
+    def import_data(self, request):
+        """Import data endpoint compatible with jqgrid-import-export.js"""
+        try:
+            import_file = request.FILES.get('import_file')
+            if not import_file:
+                return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get mapping configuration
+            mapped_columns = request.POST.get('mapped_columns', '{}')
+            default_values = request.POST.get('default_values', '{}')
+            
+            try:
+                import json
+                mapped_columns = json.loads(mapped_columns)
+                default_values = json.loads(default_values)
+            except json.JSONDecodeError:
+                return Response({'error': 'Invalid mapping configuration'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            imported_count = 0
+            
+            # Parse CSV file
+            if import_file.name.endswith('.csv'):
+                import csv
+                import io
+                from decimal import Decimal
+                from django.utils import timezone
+                from datetime import datetime
+                
+                file_content = import_file.read().decode('utf-8')
+                csv_reader = csv.DictReader(io.StringIO(file_content))
+                
+                for row in csv_reader:
+                    try:
+                        order_data = {}
+                        
+                        # Apply mapped columns
+                        for field_name, header_name in mapped_columns.items():
+                            if header_name and header_name in row:
+                                value = row[header_name].strip()
+                                # Handle specific field types
+                                if field_name in ['subtotal', 'tax_amount', 'shipping_cost', 'total_amount'] and value:
+                                    order_data[field_name] = Decimal(str(value))
+                                elif field_name == 'order_date' and value:
+                                    try:
+                                        order_data[field_name] = datetime.strptime(value, '%Y-%m-%d')
+                                    except ValueError:
+                                        # Try different date formats
+                                        try:
+                                            order_data[field_name] = datetime.strptime(value, '%m/%d/%Y')
+                                        except ValueError:
+                                            order_data[field_name] = timezone.now()
+                                elif field_name == 'customer' and value:
+                                    # Try to find customer by email or name
+                                    try:
+                                        customer = Customer.objects.filter(
+                                            models.Q(email=value) | 
+                                            models.Q(first_name__icontains=value.split()[0]) if ' ' in value else models.Q()
+                                        ).first()
+                                        if customer:
+                                            order_data['customer_id'] = customer.id
+                                    except Exception:
+                                        pass
+                                else:
+                                    order_data[field_name] = value
+                        
+                        # Apply default values
+                        for field_name, default_value in default_values.items():
+                            if default_value and field_name not in order_data:
+                                if field_name in ['subtotal', 'tax_amount', 'shipping_cost', 'total_amount']:
+                                    order_data[field_name] = Decimal(str(default_value))
+                                elif field_name == 'order_date':
+                                    order_data[field_name] = timezone.now()
+                                else:
+                                    order_data[field_name] = default_value
+                        
+                        # Set default customer if not provided
+                        if 'customer_id' not in order_data:
+                            default_customer = Customer.objects.first()
+                            if default_customer:
+                                order_data['customer_id'] = default_customer.id
+                        
+                        # Generate order number if not provided
+                        if 'order_number' not in order_data:
+                            import uuid
+                            order_data['order_number'] = f'ORD-{uuid.uuid4().hex[:8].upper()}'
+                        
+                        # Create order if we have required fields
+                        if 'customer_id' in order_data and 'order_number' in order_data:
+                            Order.objects.create(**order_data)
+                            imported_count += 1
+                            
+                    except Exception as e:
+                        print(f"Error importing order row: {e}")
+                        continue
+            
+            return Response({
+                'status': True,
+                'message': f'Successfully imported {imported_count} orders',
+                'imported_count': imported_count
+            })
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # Utility views for demonstration

@@ -1,0 +1,5 @@
+Product Name,SKU,Price,Stock,Status,Category,Description
+Test Laptop,TEST-001,999.99,10,active,Electronics,High-performance laptop
+Test Book,TEST-002,29.99,50,active,Books,Programming guide
+Test Shirt,TEST-003,19.99,25,active,Clothing,Cotton t-shirt
+Test Mouse,TEST-004,15.99,100,active,Electronics,Wireless mouse

@@ -1,0 +1,1029 @@
+{% extends 'example/base.html' %}
+{% load static %}
+{% load jqgrid_tags %}
+
+{% block title %}Advanced Grid - {{ title }} - Django jqGrid Examples{% endblock %}
+
+{% block extra_css %}
+<!-- Additional CSS for advanced features -->
+<style>
+    .grid-toolbar {
+        padding: 15px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+    
+    .bulk-actions {
+        margin-bottom: 15px;
+        padding: 10px;
+        background: #e9ecef;
+        border-radius: 0.375rem;
+        display: none;
+    }
+    
+    .grid-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .search-panel {
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: none;
+    }
+    
+    .export-panel {
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: none;
+    }
+    
+    .conditional-row-NEW { background-color: #E6E6FA !important; }
+    .conditional-row-CONTACTED { background-color: #FFFFE0 !important; }
+    .conditional-row-INTERESTED { background-color: #90EE90 !important; }
+    .conditional-row-active { background-color: #d4edda !important; color: #155724 !important; }
+    .conditional-row-inactive { background-color: #f8d7da !important; color: #721c24 !important; }
+    
+    .grid-stats {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .stat-card {
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 10px 15px;
+        text-align: center;
+        min-width: 120px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    /* Import/Export button spacing */
+    #customToolbarButtons .btn {
+        margin-right: 5px;
+    }
+    
+    /* Select2 dropdowns in import modal */
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        line-height: 36px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h2">
+                <i class="fas fa-table text-primary"></i>
+                {{ title }} - Advanced Grid
+            </h1>
+            <p class="text-muted">{{ description }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button type="button" class="btn btn-outline-info" onclick="showGridInfo()">
+                <i class="fas fa-info-circle"></i>
+                Grid Features
+            </button>
+            <a href="{% url 'example:index' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Examples
+            </a>
+        </div>
+    </div>
+
+    <!-- Grid Controls -->
+    <div class="card">
+        <div class="grid-toolbar">
+            <div class="grid-controls">
+                <div>
+                    <button type="button" class="btn btn-success btn-sm" onclick="refreshGrid()">
+                        <i class="fas fa-sync"></i>
+                        Refresh
+                    </button>
+                    <button type="button" class="btn btn-info btn-sm" onclick="toggleAdvancedSearch()">
+                        <i class="fas fa-search"></i>
+                        Advanced Search
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="addNewRecord()">
+                        <i class="fas fa-plus"></i>
+                        Add New
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="showColumnChooser()">
+                        <i class="fas fa-columns"></i>
+                        Columns
+                    </button>
+                </div>
+                <div>
+                    <!-- Container for dynamic import/export buttons -->
+                    <div id="customToolbarButtons" style="display: inline-block;">
+                        <!-- Import/export buttons will be added here dynamically by jqgrid-import-export.js -->
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="toggleGrouping()">Toggle Grouping</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="toggleConditionalFormatting()">Toggle Formatting</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="resetGrid()">Reset Grid</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="saveGridState()">Save Layout</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="loadGridState()">Load Layout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bulk Actions Panel -->
+            <div class="bulk-actions" id="bulkActionsPanel">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span id="selectedCount">0 items selected</span>
+                    <div id="bulkActionButtons">
+                        <!-- Dynamically populated bulk action buttons -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Advanced Search Panel -->
+        <div class="search-panel" id="advancedSearchPanel">
+            <h6><i class="fas fa-filter"></i> Advanced Search & Filters</h6>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="quickSearch" placeholder="Quick search across all columns...">
+                        <button class="btn btn-outline-secondary" type="button" onclick="performQuickSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-primary" onclick="openAdvancedSearchDialog()">
+                        <i class="fas fa-search-plus"></i>
+                        Advanced Search
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearAllFilters()">
+                        <i class="fas fa-times"></i>
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Export Panel -->
+        <div class="export-panel" id="exportPanel">
+            <h6><i class="fas fa-download"></i> Export Data</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Export Format:</label>
+                    <select class="form-select" id="exportFormat">
+                        <option value="xlsx">Excel (.xlsx)</option>
+                        <option value="csv">CSV (.csv)</option>
+                        <option value="pdf">PDF (.pdf)</option>
+                        <option value="json">JSON (.json)</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Export Options:</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="exportAll" checked>
+                        <label class="form-check-label" for="exportAll">
+                            Export all records (or only filtered)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="exportSelected">
+                        <label class="form-check-label" for="exportSelected">
+                            Export only selected records
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="button" class="btn btn-success" onclick="performExport()">
+                    <i class="fas fa-download"></i>
+                    Download Export
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="hideExportPanel()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <!-- jqGrid will be rendered here -->
+            <table id="{{ grid_id }}"></table>
+            <div id="{{ grid_id }}Pager"></div>
+        </div>
+    </div>
+
+    <!-- Grid Statistics -->
+    <div class="grid-stats">
+        <div class="stat-card">
+            <div class="stat-number text-primary" id="totalRecords">-</div>
+            <div class="stat-label">Total Records</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number text-success" id="filteredRecords">-</div>
+            <div class="stat-label">Filtered</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number text-info" id="selectedRecords">0</div>
+            <div class="stat-label">Selected</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number text-warning" id="visibleColumns">-</div>
+            <div class="stat-label">Visible Columns</div>
+        </div>
+    </div>
+</div>
+
+<!-- Grid Info Modal -->
+<div class="modal fade" id="gridInfoModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle"></i>
+                    Advanced Grid Features
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-star text-warning"></i> Core Features</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Multi-column sorting</li>
+                            <li><i class="fas fa-check text-success"></i> Advanced filtering & search</li>
+                            <li><i class="fas fa-check text-success"></i> Inline editing & forms</li>
+                            <li><i class="fas fa-check text-success"></i> Bulk operations</li>
+                            <li><i class="fas fa-check text-success"></i> Export/Import data</li>
+                            <li><i class="fas fa-check text-success"></i> Column management</li>
+                            <li><i class="fas fa-check text-success"></i> Responsive design</li>
+                            <li><i class="fas fa-check text-success"></i> State persistence</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cogs text-info"></i> Advanced Features</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Conditional formatting</li>
+                            <li><i class="fas fa-check text-success"></i> Data grouping</li>
+                            <li><i class="fas fa-check text-success"></i> Custom formatters</li>
+                            <li><i class="fas fa-check text-success"></i> Frozen columns</li>
+                            <li><i class="fas fa-check text-success"></i> Server-side pagination</li>
+                            <li><i class="fas fa-check text-success"></i> Real-time updates</li>
+                            <li><i class="fas fa-check text-success"></i> Action buttons</li>
+                            <li><i class="fas fa-check text-success"></i> Context menus</li>
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <h6><i class="fas fa-keyboard text-primary"></i> Keyboard Shortcuts</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <kbd>Ctrl+F</kbd> Quick search<br>
+                                <kbd>Ctrl+A</kbd> Select all<br>
+                                <kbd>Delete</kbd> Delete selected<br>
+                            </div>
+                            <div class="col-md-4">
+                                <kbd>Ctrl+E</kbd> Export (via toolbar)<br>
+                                <kbd>Ctrl+N</kbd> Add new record<br>
+                                <kbd>F5</kbd> Refresh grid<br>
+                            </div>
+                            <div class="col-md-4">
+                                <kbd>Ctrl+G</kbd> Toggle grouping<br>
+                                <kbd>Ctrl+H</kbd> Toggle columns<br>
+                                <kbd>Esc</kbd> Clear selection<br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Update Modal -->
+<div class="modal fade" id="bulkUpdateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit"></i>
+                    Bulk Update Records
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bulkUpdateForm">
+                    <div id="bulkUpdateFields">
+                        <!-- Dynamically populated based on grid configuration -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="performBulkUpdate()">
+                    <i class="fas fa-save"></i>
+                    Update Selected
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import/Export modals are dynamically created by jqgrid-import-export.js -->
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include the comprehensive import/export utility -->
+<script src="{% static 'jqgrid-import-export.js' %}"></script>
+
+<script>
+// Global grid variables
+var gridConfig = null;
+var gridData = null;
+var selectedRows = [];
+var tableInstance = null;
+
+$(document).ready(function() {
+    // Load grid configuration and initialize
+    loadGridConfiguration();
+    
+    // Setup keyboard shortcuts
+    setupKeyboardShortcuts();
+    
+    // Setup UI event handlers
+    setupEventHandlers();
+});
+
+function loadGridConfiguration() {
+    $.ajax({
+        url: '{{ config_url }}',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.status) {
+                gridConfig = response.data;
+                initializeAdvancedGrid();
+            } else {
+                console.error('Failed to load grid configuration:', response.message);
+                showAlert('Error loading grid configuration', 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Grid configuration request failed:', error);
+            showAlert('Failed to load grid configuration', 'danger');
+        }
+    });
+}
+
+function initializeAdvancedGrid() {
+    var options = gridConfig.jqgrid_options;
+    
+    // Initialize the grid
+    $('#{{ grid_id }}').jqGrid(options);
+    
+    // Create table instance for import/export functionality
+    tableInstance = {
+        id: '{{ grid_id }}',
+        $grid: $('#{{ grid_id }}'),
+        tableName: '{{ title|lower }}',
+        appName: 'example',
+        headerTitles: gridConfig.header_titles || {},
+        toolbarSettings: {
+            customButtonsContainerId: 'customToolbarButtons'
+        }
+    };
+    
+    // Initialize import/export functionality
+    if (window.importExportUtils) {
+        window.importExportUtils.initializeImportExport(tableInstance, gridConfig);
+    }
+    
+    // Setup navigation
+    setupNavigation();
+    
+    // Setup bulk actions
+    setupBulkActions();
+    
+    // Setup conditional formatting
+    if (gridConfig.conditional_formatting) {
+        setupConditionalFormatting();
+    }
+    
+    // Setup event handlers
+    setupGridEventHandlers();
+    
+    // Load any saved state
+    loadGridState();
+    
+    console.log('Advanced grid initialized successfully');
+}
+
+function setupNavigation() {
+    var navOptions = gridConfig.method_options.navGrid;
+    
+    $('#{{ grid_id }}').jqGrid('navGrid', navOptions.selector, 
+        navOptions.options,
+        navOptions.editOptions,
+        navOptions.addOptions,
+        navOptions.delOptions,
+        navOptions.searchOptions,
+        navOptions.viewOptions
+    );
+    
+    // Add custom navigation buttons
+    if (gridConfig.method_options.navButtonAdd) {
+        gridConfig.method_options.navButtonAdd.forEach(function(button) {
+            $('#{{ grid_id }}').jqGrid('navButtonAdd', button.selector, button.options);
+        });
+    }
+    
+    // Setup filter toolbar
+    if (gridConfig.method_options.filterToolbar) {
+        $('#{{ grid_id }}').jqGrid('filterToolbar', gridConfig.method_options.filterToolbar.options);
+    }
+}
+
+function setupBulkActions() {
+    var bulkConfig = gridConfig.bulk_action_config;
+    var buttonsHtml = '';
+    
+    bulkConfig.actions.forEach(function(action) {
+        buttonsHtml += `
+            <button type="button" class="btn ${action.class} btn-sm me-2" 
+                    onclick="${action.handler}()" 
+                    data-action="${action.id}"
+                    ${action.confirm ? 'data-confirm="' + (action.confirmMessage || 'Are you sure?') + '"' : ''}>
+                <i class="${action.icon}"></i>
+                ${action.label}
+            </button>
+        `;
+    });
+    
+    $('#bulkActionButtons').html(buttonsHtml);
+    
+    // Setup bulk update fields
+    setupBulkUpdateFields(bulkConfig.updateableFields);
+}
+
+function setupBulkUpdateFields(updateableFields) {
+    var fieldsHtml = '';
+    var colModel = gridConfig.jqgrid_options.colModel;
+    
+    updateableFields.forEach(function(fieldName) {
+        var col = colModel.find(c => c.name === fieldName);
+        if (col) {
+            fieldsHtml += `
+                <div class="mb-3">
+                    <label class="form-label">${col.label}:</label>
+                    ${getBulkUpdateFieldHtml(col)}
+                </div>
+            `;
+        }
+    });
+    
+    $('#bulkUpdateFields').html(fieldsHtml);
+}
+
+function getBulkUpdateFieldHtml(col) {
+    if (col.edittype === 'select') {
+        var options = '';
+        if (col.editoptions && col.editoptions.value) {
+            var values = col.editoptions.value.split(';');
+            values.forEach(function(val) {
+                var parts = val.split(':');
+                options += `<option value="${parts[0]}">${parts[1] || parts[0]}</option>`;
+            });
+        }
+        return `<select class="form-select" name="${col.name}"><option value="">No Change</option>${options}</select>`;
+    } else if (col.edittype === 'checkbox') {
+        return `
+            <select class="form-select" name="${col.name}">
+                <option value="">No Change</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+        `;
+    } else {
+        return `<input type="text" class="form-control" name="${col.name}" placeholder="No Change">`;
+    }
+}
+
+function setupConditionalFormatting() {
+    var formatting = gridConfig.conditional_formatting;
+    
+    Object.keys(formatting).forEach(function(fieldName) {
+        var rules = formatting[fieldName];
+        Object.keys(rules).forEach(function(value) {
+            var style = rules[value];
+            var cssClass = `.conditional-row-${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            
+            // Add CSS rule dynamically
+            var styleSheet = document.styleSheets[0];
+            var rule = `${cssClass} { background-color: ${style.background_color} !important; color: ${style.color} !important; }`;
+            styleSheet.insertRule(rule, styleSheet.cssRules.length);
+        });
+    });
+}
+
+function setupGridEventHandlers() {
+    var grid = $('#{{ grid_id }}');
+    
+    // Row selection handler
+    grid.jqGrid('setGridParam', {
+        onSelectRow: function(rowid, status, e) {
+            updateSelection(rowid, status);
+        },
+        onSelectAll: function(aRowids, status) {
+            selectedRows = status ? aRowids : [];
+            updateBulkActions();
+            updateStatistics();
+        },
+        loadComplete: function(data) {
+            updateStatistics();
+            applyConditionalFormatting();
+        },
+        gridComplete: function() {
+            updateVisibleColumns();
+        }
+    });
+}
+
+function updateSelection(rowid, status) {
+    if (status) {
+        if (selectedRows.indexOf(rowid) === -1) {
+            selectedRows.push(rowid);
+        }
+    } else {
+        var index = selectedRows.indexOf(rowid);
+        if (index > -1) {
+            selectedRows.splice(index, 1);
+        }
+    }
+    
+    updateBulkActions();
+    updateStatistics();
+}
+
+function updateBulkActions() {
+    var panel = $('#bulkActionsPanel');
+    var count = selectedRows.length;
+    
+    if (count > 0) {
+        $('#selectedCount').text(`${count} item${count > 1 ? 's' : ''} selected`);
+        panel.show();
+    } else {
+        panel.hide();
+    }
+    
+    $('#selectedRecords').text(count);
+}
+
+function updateStatistics() {
+    var grid = $('#{{ grid_id }}');
+    var records = grid.jqGrid('getGridParam', 'records');
+    var data = grid.jqGrid('getRowData');
+    
+    $('#totalRecords').text(records || data.length);
+    $('#filteredRecords').text(data.length);
+}
+
+function updateVisibleColumns() {
+    var grid = $('#{{ grid_id }}');
+    var colModel = grid.jqGrid('getGridParam', 'colModel');
+    var visibleCount = colModel.filter(col => !col.hidden).length;
+    $('#visibleColumns').text(visibleCount);
+}
+
+function applyConditionalFormatting() {
+    if (!gridConfig.conditional_formatting) return;
+    
+    var grid = $('#{{ grid_id }}');
+    var data = grid.jqGrid('getRowData');
+    
+    data.forEach(function(row) {
+        Object.keys(gridConfig.conditional_formatting).forEach(function(fieldName) {
+            var value = row[fieldName];
+            var rules = gridConfig.conditional_formatting[fieldName];
+            
+            if (rules[value]) {
+                var rowElement = $(`#${row.id}`);
+                rowElement.addClass(`conditional-row-${value.replace(/[^a-zA-Z0-9]/g, '_')}`);
+            }
+        });
+    });
+}
+
+function setupKeyboardShortcuts() {
+    $(document).keydown(function(e) {
+        if (e.ctrlKey) {
+            switch(e.key) {
+                case 'f':
+                    e.preventDefault();
+                    $('#quickSearch').focus();
+                    break;
+                case 'a':
+                    e.preventDefault();
+                    $('#{{ grid_id }}').jqGrid('setSelection', null, true);
+                    break;
+                case 'e':
+                    e.preventDefault();
+                    showExportDialog();
+                    break;
+                case 'n':
+                    e.preventDefault();
+                    addNewRecord();
+                    break;
+                case 'g':
+                    e.preventDefault();
+                    toggleGrouping();
+                    break;
+                case 'h':
+                    e.preventDefault();
+                    showColumnChooser();
+                    break;
+            }
+        } else if (e.key === 'F5') {
+            e.preventDefault();
+            refreshGrid();
+        } else if (e.key === 'Delete') {
+            if (selectedRows.length > 0) {
+                bulkDelete();
+            }
+        } else if (e.key === 'Escape') {
+            selectedRows = [];
+            $('#{{ grid_id }}').jqGrid('resetSelection');
+            updateBulkActions();
+        }
+    });
+}
+
+function setupEventHandlers() {
+    // Quick search
+    $('#quickSearch').on('input', function() {
+        var searchTerm = $(this).val();
+        if (searchTerm.length >= 3 || searchTerm.length === 0) {
+            performQuickSearch();
+        }
+    });
+    
+    // Export format change
+    $('#exportFormat').change(function() {
+        updateExportOptions();
+    });
+}
+
+// Grid action functions
+function refreshGrid() {
+    $('#{{ grid_id }}').trigger('reloadGrid');
+    showAlert('Grid refreshed successfully', 'success');
+}
+
+function toggleAdvancedSearch() {
+    $('#advancedSearchPanel').toggle();
+}
+
+function addNewRecord() {
+    $('#{{ grid_id }}').jqGrid('editGridRow', 'new', {
+        recreateForm: true,
+        closeAfterAdd: true,
+        reloadAfterSubmit: true,
+        modal: true,
+        beforeShowForm: centerDialog
+    });
+}
+
+function showColumnChooser() {
+    $('#{{ grid_id }}').jqGrid('columnChooser', {
+        modal: true,
+        width: 550,
+        height: 400,
+        done: function(perm) {
+            if (perm) {
+                this.jqGrid("remapColumns", perm, true);
+                updateVisibleColumns();
+                saveGridState();
+            }
+        }
+    });
+}
+
+function showGridInfo() {
+    $('#gridInfoModal').modal('show');
+}
+
+function toggleGrouping() {
+    var grid = $('#{{ grid_id }}');
+    var grouping = grid.jqGrid('getGridParam', 'grouping');
+    
+    if (grouping) {
+        grid.jqGrid('groupingRemove');
+        showAlert('Grouping disabled', 'info');
+    } else {
+        var groupOptions = gridConfig.method_options.groupingGroupBy?.options;
+        if (groupOptions) {
+            grid.jqGrid('groupingGroupBy', groupOptions.groupField[0], groupOptions);
+            showAlert('Grouping enabled', 'info');
+        }
+    }
+}
+
+function toggleConditionalFormatting() {
+    // Toggle conditional formatting CSS classes
+    var grid = $('#{{ grid_id }}');
+    grid.find('tr').each(function() {
+        var $row = $(this);
+        var classes = $row.attr('class') || '';
+        
+        if (classes.includes('conditional-row-')) {
+            // Remove conditional formatting
+            var newClasses = classes.replace(/conditional-row-\w+/g, '').trim();
+            $row.attr('class', newClasses);
+        } else {
+            // Reapply conditional formatting
+            applyConditionalFormatting();
+        }
+    });
+    
+    showAlert('Conditional formatting toggled', 'info');
+}
+
+function resetGrid() {
+    if (confirm('Are you sure you want to reset all grid settings?')) {
+        localStorage.removeItem('{{ grid_id }}_state');
+        location.reload();
+    }
+}
+
+function saveGridState() {
+    var grid = $('#{{ grid_id }}');
+    var state = {
+        sortname: grid.jqGrid('getGridParam', 'sortname'),
+        sortorder: grid.jqGrid('getGridParam', 'sortorder'),
+        page: grid.jqGrid('getGridParam', 'page'),
+        rowNum: grid.jqGrid('getGridParam', 'rowNum'),
+        colModel: grid.jqGrid('getGridParam', 'colModel').map(col => ({
+            name: col.name,
+            width: col.width,
+            hidden: col.hidden
+        }))
+    };
+    
+    localStorage.setItem('{{ grid_id }}_state', JSON.stringify(state));
+    showAlert('Grid layout saved', 'success');
+}
+
+function loadGridState() {
+    var savedState = localStorage.getItem('{{ grid_id }}_state');
+    if (savedState) {
+        try {
+            var state = JSON.parse(savedState);
+            var grid = $('#{{ grid_id }}');
+            
+            // Restore column states
+            if (state.colModel) {
+                state.colModel.forEach(function(col) {
+                    grid.jqGrid('setColProp', col.name, {
+                        width: col.width,
+                        hidden: col.hidden
+                    });
+                });
+            }
+            
+            // Restore other parameters
+            grid.jqGrid('setGridParam', {
+                sortname: state.sortname,
+                sortorder: state.sortorder,
+                page: state.page || 1,
+                rowNum: state.rowNum || 25
+            });
+            
+            console.log('Grid state restored');
+        } catch (e) {
+            console.error('Error loading grid state:', e);
+        }
+    }
+}
+
+// Search functions
+function performQuickSearch() {
+    var searchTerm = $('#quickSearch').val();
+    var grid = $('#{{ grid_id }}');
+    
+    if (searchTerm) {
+        grid.jqGrid('setGridParam', {
+            search: true,
+            postData: {
+                filters: JSON.stringify({
+                    groupOp: "OR",
+                    rules: gridConfig.jqgrid_options.colModel
+                        .filter(col => col.search)
+                        .map(col => ({
+                            field: col.name,
+                            op: "cn",
+                            data: searchTerm
+                        }))
+                })
+            }
+        });
+    } else {
+        grid.jqGrid('setGridParam', {
+            search: false,
+            postData: { filters: "" }
+        });
+    }
+    
+    grid.trigger('reloadGrid', [{ page: 1 }]);
+}
+
+function openAdvancedSearchDialog() {
+    $('#{{ grid_id }}').jqGrid('searchGrid', {
+        multipleSearch: true,
+        multipleGroup: true,
+        showQuery: true,
+        caption: "Advanced Search",
+        recreateForm: true,
+        width: 700,
+        beforeShowForm: centerDialog
+    });
+}
+
+function clearAllFilters() {
+    var grid = $('#{{ grid_id }}');
+    
+    // Clear toolbar filters
+    if (grid[0].clearToolbar) {
+        grid[0].clearToolbar();
+    }
+    
+    // Clear search filters
+    grid.jqGrid('setGridParam', {
+        search: false,
+        postData: { filters: "" }
+    });
+    
+    // Clear quick search
+    $('#quickSearch').val('');
+    
+    grid.trigger('reloadGrid', [{ page: 1 }]);
+    showAlert('All filters cleared', 'info');
+}
+
+// Bulk action functions
+function bulkUpdate() {
+    if (selectedRows.length === 0) {
+        showAlert('Please select records to update', 'warning');
+        return;
+    }
+    
+    $('#bulkUpdateModal').modal('show');
+}
+
+function performBulkUpdate() {
+    var formData = $('#bulkUpdateForm').serializeArray();
+    var updateData = {};
+    
+    formData.forEach(function(field) {
+        if (field.value && field.value !== '') {
+            updateData[field.name] = field.value;
+        }
+    });
+    
+    if (Object.keys(updateData).length === 0) {
+        showAlert('No changes specified', 'warning');
+        return;
+    }
+    
+    $.ajax({
+        url: '{{ api_url }}bulk_update/',
+        method: 'POST',
+        data: {
+            ids: selectedRows,
+            data: updateData,
+            csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            $('#bulkUpdateModal').modal('hide');
+            refreshGrid();
+            showAlert(`${selectedRows.length} records updated successfully`, 'success');
+            selectedRows = [];
+            updateBulkActions();
+        },
+        error: function(xhr) {
+            showAlert('Error updating records: ' + (xhr.responseJSON?.message || 'Unknown error'), 'danger');
+        }
+    });
+}
+
+function bulkDelete() {
+    if (selectedRows.length === 0) {
+        showAlert('Please select records to delete', 'warning');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to delete ${selectedRows.length} selected record(s)?`)) {
+        return;
+    }
+    
+    $.ajax({
+        url: '{{ api_url }}bulk_delete/',
+        method: 'POST',
+        data: {
+            ids: selectedRows,
+            csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            refreshGrid();
+            showAlert(`${selectedRows.length} records deleted successfully`, 'success');
+            selectedRows = [];
+            updateBulkActions();
+        },
+        error: function(xhr) {
+            showAlert('Error deleting records: ' + (xhr.responseJSON?.message || 'Unknown error'), 'danger');
+        }
+    });
+}
+
+function bulkExport() {
+    if (selectedRows.length === 0) {
+        showAlert('Please select records to export', 'warning');
+        return;
+    }
+    
+    var url = `{{ api_url }}export/?ids=${selectedRows.join(',')}`;
+    window.open(url, '_blank');
+}
+
+// Export/Import functions are now handled by jqgrid-import-export.js
+
+// Utility functions
+function centerDialog(form) {
+    var dlg = $(form).parent();
+    dlg.css({
+        top: Math.max(0, (($(window).height() - dlg.outerHeight()) / 2)) + "px",
+        left: Math.max(0, (($(window).width() - dlg.outerWidth()) / 2)) + "px"
+    });
+}
+
+function showAlert(message, type) {
+    var alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    // Remove existing alerts and add new one
+    $('.alert').remove();
+    $('body').prepend(alertHtml);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(function() {
+        $('.alert').fadeOut();
+    }, 5000);
+}
+
+// Add CSRF token to all AJAX requests
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+            xhr.setRequestHeader("X-CSRFToken", $('[name=csrfmiddlewaretoken]').val());
+        }
+    }
+});
+</script>
+{% csrf_token %}
+{% endblock %}
