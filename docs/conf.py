@@ -132,12 +132,18 @@ if 'myst_parser' in extensions:
         "fieldlist",
         "html_admonition",
         "html_image",
-        "linkify",
         "replacements",
         "smartquotes",
         "strikethrough",
         "substitution",
         "tasklist",
     ]
+    
+    # Only enable linkify if linkify-it-py is available
+    try:
+        import linkify_it
+        myst_enable_extensions.append("linkify")
+    except ImportError:
+        pass
     
     myst_heading_anchors = 3
