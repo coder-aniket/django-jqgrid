@@ -19,7 +19,11 @@ sys.path.insert(0, os.path.abspath('../django_jqgrid'))
 
 # Configure Django settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'docs.settings')
-django.setup()
+try:
+    django.setup()
+except Exception:
+    # Django setup might fail in Read the Docs environment
+    pass
 
 # -- Project information -----------------------------------------------------
 
@@ -43,8 +47,14 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
     'sphinx.ext.githubpages',
-    'myst_parser',
 ]
+
+# Add MyST parser if available
+try:
+    import myst_parser
+    extensions.append('myst_parser')
+except ImportError:
+    print("MyST parser not available, using only RST files")
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -55,10 +65,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The suffix(es) of source filenames.
-source_suffix = {
-    '.rst': None,
-    '.md': 'myst_parser',
-}
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
@@ -116,19 +123,21 @@ napoleon_use_rtype = True
 
 # -- Options for MyST parser -------------------------------------------------
 
-myst_enable_extensions = [
-    "colon_fence",
-    "deflist",
-    "dollarmath",
-    "fieldlist",
-    "html_admonition",
-    "html_image",
-    "linkify",
-    "replacements",
-    "smartquotes",
-    "strikethrough",
-    "substitution",
-    "tasklist",
-]
-
-myst_heading_anchors = 3
+# Only configure MyST if it's available
+if 'myst_parser' in extensions:
+    myst_enable_extensions = [
+        "colon_fence",
+        "deflist",
+        "dollarmath",
+        "fieldlist",
+        "html_admonition",
+        "html_image",
+        "linkify",
+        "replacements",
+        "smartquotes",
+        "strikethrough",
+        "substitution",
+        "tasklist",
+    ]
+    
+    myst_heading_anchors = 3
