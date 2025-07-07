@@ -95,9 +95,11 @@ setup(
             'Pillow>=8.0.0',  # Image handling
         ],
         'docs': [
-            'sphinx>=4.0',
-            'sphinx-rtd-theme>=0.5',
-            'recommonmark>=0.7',
+            'sphinx>=5.0.0',
+            'sphinx-rtd-theme>=1.0.0',
+            'myst-parser>=0.18.0',
+            'django>=3.2.0',
+            'djangorestframework>=3.12.0',
         ],
     },
     keywords='django jqgrid rest framework grid datatable',
