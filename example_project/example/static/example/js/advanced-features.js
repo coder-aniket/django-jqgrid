@@ -3,14 +3,131 @@
  * Demonstrates comprehensive jqGrid functionality and customization
  */
 
+// Master-Detail Sample Data (declare first)
+const masterDetailData = {
+    // Master table: Companies
+    companies: [
+        {id: 1, name: "Tech Corp", industry: "Technology", founded: 2010, headquarters: "San Francisco, CA", revenue: 50000000, employees: 250, status: "active"},
+        {id: 2, name: "Global Manufacturing", industry: "Manufacturing", founded: 1995, headquarters: "Detroit, MI", revenue: 150000000, employees: 1200, status: "active"},
+        {id: 3, name: "Retail Solutions", industry: "Retail", founded: 2005, headquarters: "Chicago, IL", revenue: 25000000, employees: 180, status: "active"},
+        {id: 4, name: "Financial Services Inc", industry: "Finance", founded: 1988, headquarters: "New York, NY", revenue: 75000000, employees: 450, status: "active"},
+        {id: 5, name: "Healthcare Partners", industry: "Healthcare", founded: 2000, headquarters: "Boston, MA", revenue: 35000000, employees: 220, status: "active"}
+    ],
+    
+    // Child table: Departments
+    departments: [
+        // Tech Corp departments
+        {id: 1, company_id: 1, name: "Engineering", manager: "John Smith", budget: 5000000, employees: 85, location: "Building A"},
+        {id: 2, company_id: 1, name: "Product Management", manager: "Sarah Johnson", budget: 2000000, employees: 25, location: "Building B"},
+        {id: 3, company_id: 1, name: "Sales", manager: "Mike Chen", budget: 3000000, employees: 40, location: "Building C"},
+        {id: 4, company_id: 1, name: "Marketing", manager: "Lisa Brown", budget: 1500000, employees: 15, location: "Building B"},
+        
+        // Global Manufacturing departments
+        {id: 5, company_id: 2, name: "Production", manager: "Robert Wilson", budget: 15000000, employees: 800, location: "Factory Floor"},
+        {id: 6, company_id: 2, name: "Quality Control", manager: "Emily Davis", budget: 2000000, employees: 50, location: "QC Lab"},
+        {id: 7, company_id: 2, name: "Research & Development", manager: "David Lee", budget: 8000000, employees: 120, location: "R&D Center"},
+        {id: 8, company_id: 2, name: "Operations", manager: "Anna Martinez", budget: 5000000, employees: 80, location: "Admin Building"},
+        
+        // Retail Solutions departments
+        {id: 9, company_id: 3, name: "Store Operations", manager: "Tom Anderson", budget: 3000000, employees: 120, location: "Main Office"},
+        {id: 10, company_id: 3, name: "Supply Chain", manager: "Jessica Taylor", budget: 2500000, employees: 35, location: "Warehouse"},
+        {id: 11, company_id: 3, name: "Customer Service", manager: "Mark Johnson", budget: 1200000, employees: 25, location: "Call Center"},
+        
+        // Financial Services departments
+        {id: 12, company_id: 4, name: "Investment Banking", manager: "Patricia White", budget: 10000000, employees: 150, location: "Floor 40"},
+        {id: 13, company_id: 4, name: "Wealth Management", manager: "James Brown", budget: 8000000, employees: 100, location: "Floor 35"},
+        {id: 14, company_id: 4, name: "Risk Management", manager: "Maria Garcia", budget: 3000000, employees: 60, location: "Floor 42"},
+        {id: 15, company_id: 4, name: "Compliance", manager: "Charles Wilson", budget: 2000000, employees: 40, location: "Floor 38"},
+        
+        // Healthcare Partners departments
+        {id: 16, company_id: 5, name: "Clinical Operations", manager: "Dr. Susan Miller", budget: 8000000, employees: 120, location: "Medical Center"},
+        {id: 17, company_id: 5, name: "Research", manager: "Dr. Michael Thompson", budget: 5000000, employees: 45, location: "Research Lab"},
+        {id: 18, company_id: 5, name: "Administration", manager: "Nancy Davis", budget: 1500000, employees: 35, location: "Admin Wing"},
+        {id: 19, company_id: 5, name: "IT Support", manager: "Kevin Rodriguez", budget: 2000000, employees: 20, location: "IT Center"}
+    ],
+    
+    // Grand-child table: Employees in departments
+    employees: [
+        // Tech Corp - Engineering
+        {id: 1, department_id: 1, name: "Alice Johnson", position: "Senior Software Engineer", salary: 120000, hire_date: "2020-03-15", email: "alice.johnson@techcorp.com", phone: "+1-555-0101"},
+        {id: 2, department_id: 1, name: "Bob Wilson", position: "Software Engineer", salary: 95000, hire_date: "2021-07-20", email: "bob.wilson@techcorp.com", phone: "+1-555-0102"},
+        {id: 3, department_id: 1, name: "Carol Davis", position: "DevOps Engineer", salary: 105000, hire_date: "2019-11-10", email: "carol.davis@techcorp.com", phone: "+1-555-0103"},
+        
+        // Tech Corp - Product Management
+        {id: 4, department_id: 2, name: "Daniel Brown", position: "Product Manager", salary: 110000, hire_date: "2020-01-05", email: "daniel.brown@techcorp.com", phone: "+1-555-0104"},
+        {id: 5, department_id: 2, name: "Eva Martinez", position: "Product Analyst", salary: 85000, hire_date: "2021-09-12", email: "eva.martinez@techcorp.com", phone: "+1-555-0105"},
+        
+        // Global Manufacturing - Production
+        {id: 6, department_id: 5, name: "Frank Taylor", position: "Production Manager", salary: 90000, hire_date: "2018-04-18", email: "frank.taylor@globalmfg.com", phone: "+1-555-0106"},
+        {id: 7, department_id: 5, name: "Grace Lee", position: "Line Supervisor", salary: 65000, hire_date: "2019-06-22", email: "grace.lee@globalmfg.com", phone: "+1-555-0107"},
+        {id: 8, department_id: 5, name: "Henry Chen", position: "Quality Inspector", salary: 55000, hire_date: "2020-12-03", email: "henry.chen@globalmfg.com", phone: "+1-555-0108"},
+        
+        // Retail Solutions - Store Operations
+        {id: 9, department_id: 9, name: "Iris Rodriguez", position: "Store Manager", salary: 75000, hire_date: "2019-08-15", email: "iris.rodriguez@retailsol.com", phone: "+1-555-0109"},
+        {id: 10, department_id: 9, name: "Jack Thompson", position: "Assistant Manager", salary: 50000, hire_date: "2021-02-28", email: "jack.thompson@retailsol.com", phone: "+1-555-0110"},
+        
+        // Financial Services - Investment Banking
+        {id: 11, department_id: 12, name: "Karen White", position: "Investment Banker", salary: 150000, hire_date: "2017-10-12", email: "karen.white@finserv.com", phone: "+1-555-0111"},
+        {id: 12, department_id: 12, name: "Larry Anderson", position: "Financial Analyst", salary: 95000, hire_date: "2020-05-20", email: "larry.anderson@finserv.com", phone: "+1-555-0112"},
+        
+        // Healthcare Partners - Clinical Operations
+        {id: 13, department_id: 16, name: "Dr. Monica Garcia", position: "Chief Medical Officer", salary: 250000, hire_date: "2015-01-10", email: "monica.garcia@healthpartners.com", phone: "+1-555-0113"},
+        {id: 14, department_id: 16, name: "Dr. Nathan Miller", position: "Physician", salary: 180000, hire_date: "2018-09-05", email: "nathan.miller@healthpartners.com", phone: "+1-555-0114"}
+    ]
+};
+
 // Sample data for demonstration
-const sampleData = [
-    {id: 1, name: "Product A", price: 29.99, stock: 150, status: "active", category: "Electronics", progress: 85},
-    {id: 2, name: "Product B", price: 19.50, stock: 75, status: "inactive", category: "Books", progress: 60},
-    {id: 3, name: "Product C", price: 45.00, stock: 0, status: "pending", category: "Clothing", progress: 30},
-    {id: 4, name: "Product D", price: 12.99, stock: 200, status: "active", category: "Electronics", progress: 95},
-    {id: 5, name: "Product E", price: 8.75, stock: 25, status: "active", category: "Books", progress: 70}
-];
+const sampleDataSets = {
+    products: [
+        {id: 1, name: "MacBook Pro 16\"", price: 2399.99, stock: 25, status: "active", category: "Electronics", progress: 85, brand: "Apple", rating: 4.8, created: "2024-01-15"},
+        {id: 2, name: "Dell XPS 13", price: 1299.50, stock: 42, status: "active", category: "Electronics", progress: 92, brand: "Dell", rating: 4.6, created: "2024-02-20"},
+        {id: 3, name: "The Design of Everyday Things", price: 18.99, stock: 156, status: "active", category: "Books", progress: 78, brand: "Basic Books", rating: 4.7, created: "2024-01-05"},
+        {id: 4, name: "Wireless Mouse", price: 45.00, stock: 0, status: "pending", category: "Electronics", progress: 30, brand: "Logitech", rating: 4.2, created: "2024-03-10"},
+        {id: 5, name: "Clean Code", price: 32.99, stock: 89, status: "active", category: "Books", progress: 95, brand: "Prentice Hall", rating: 4.9, created: "2024-01-25"},
+        {id: 6, name: "Yoga Mat", price: 24.99, stock: 67, status: "active", category: "Sports", progress: 88, brand: "Manduka", rating: 4.5, created: "2024-02-14"},
+        {id: 7, name: "Coffee Maker", price: 89.99, stock: 15, status: "inactive", category: "Home", progress: 65, brand: "Keurig", rating: 4.3, created: "2024-03-05"},
+        {id: 8, name: "Running Shoes", price: 129.99, stock: 234, status: "active", category: "Sports", progress: 76, brand: "Nike", rating: 4.4, created: "2024-01-30"},
+        {id: 9, name: "Desk Lamp", price: 56.50, stock: 12, status: "pending", category: "Home", progress: 42, brand: "IKEA", rating: 4.1, created: "2024-02-28"},
+        {id: 10, name: "Bluetooth Headphones", price: 199.99, stock: 78, status: "active", category: "Electronics", progress: 91, brand: "Sony", rating: 4.6, created: "2024-01-18"}
+    ],
+    employees: [
+        {id: 1, name: "John Smith", position: "Software Engineer", department: "Engineering", salary: 85000, status: "active", hire_date: "2022-03-15", email: "john.smith@company.com", phone: "+1-555-0101", experience: 5},
+        {id: 2, name: "Sarah Johnson", position: "Product Manager", department: "Product", salary: 95000, status: "active", hire_date: "2021-07-20", email: "sarah.johnson@company.com", phone: "+1-555-0102", experience: 8},
+        {id: 3, name: "Mike Chen", position: "UX Designer", department: "Design", salary: 72000, status: "active", hire_date: "2023-01-10", email: "mike.chen@company.com", phone: "+1-555-0103", experience: 3},
+        {id: 4, name: "Emily Davis", position: "Data Scientist", department: "Analytics", salary: 105000, status: "active", hire_date: "2020-11-05", email: "emily.davis@company.com", phone: "+1-555-0104", experience: 6},
+        {id: 5, name: "David Wilson", position: "DevOps Engineer", department: "Engineering", salary: 88000, status: "on_leave", hire_date: "2022-09-12", email: "david.wilson@company.com", phone: "+1-555-0105", experience: 4},
+        {id: 6, name: "Lisa Brown", position: "Marketing Manager", department: "Marketing", salary: 78000, status: "active", hire_date: "2021-04-18", email: "lisa.brown@company.com", phone: "+1-555-0106", experience: 7},
+        {id: 7, name: "Robert Taylor", position: "Sales Representative", department: "Sales", salary: 65000, status: "active", hire_date: "2023-06-22", email: "robert.taylor@company.com", phone: "+1-555-0107", experience: 2},
+        {id: 8, name: "Anna Martinez", position: "HR Specialist", department: "Human Resources", salary: 58000, status: "active", hire_date: "2022-12-03", email: "anna.martinez@company.com", phone: "+1-555-0108", experience: 4}
+    ],
+    orders: [
+        {id: 1001, customer: "Acme Corp", amount: 1250.00, status: "shipped", order_date: "2024-03-01", ship_date: "2024-03-03", priority: "high", sales_rep: "John Doe", region: "North America"},
+        {id: 1002, customer: "Tech Solutions Inc", amount: 890.50, status: "processing", order_date: "2024-03-02", ship_date: null, priority: "medium", sales_rep: "Jane Smith", region: "Europe"},
+        {id: 1003, customer: "Global Industries", amount: 2100.75, status: "delivered", order_date: "2024-02-28", ship_date: "2024-03-02", priority: "high", sales_rep: "Bob Johnson", region: "Asia Pacific"},
+        {id: 1004, customer: "StartUp LLC", amount: 450.00, status: "cancelled", order_date: "2024-03-01", ship_date: null, priority: "low", sales_rep: "Alice Brown", region: "North America"},
+        {id: 1005, customer: "Enterprise Co", amount: 3200.00, status: "processing", order_date: "2024-03-03", ship_date: null, priority: "urgent", sales_rep: "Mike Davis", region: "Europe"},
+        {id: 1006, customer: "Small Business", amount: 275.25, status: "shipped", order_date: "2024-02-29", ship_date: "2024-03-01", priority: "medium", sales_rep: "Sarah Wilson", region: "North America"},
+        {id: 1007, customer: "Manufacturing Ltd", amount: 1800.60, status: "delivered", order_date: "2024-02-27", ship_date: "2024-03-01", priority: "high", sales_rep: "Tom Anderson", region: "Asia Pacific"},
+        {id: 1008, customer: "Retail Chain", amount: 950.00, status: "processing", order_date: "2024-03-03", ship_date: null, priority: "medium", sales_rep: "Lisa Garcia", region: "Europe"}
+    ],
+    customers: [
+        {id: 1, name: "Acme Corporation", contact: "John Smith", email: "john@acme.com", phone: "+1-555-1000", address: "123 Business Ave, New York, NY", industry: "Technology", revenue: 5000000, employees: 250, status: "active"},
+        {id: 2, name: "Tech Solutions Inc", contact: "Sarah Johnson", email: "sarah@techsolutions.com", phone: "+1-555-2000", address: "456 Tech Blvd, San Francisco, CA", industry: "Software", revenue: 12000000, employees: 500, status: "active"},
+        {id: 3, name: "Global Industries", contact: "Mike Chen", email: "mike@global.com", phone: "+1-555-3000", address: "789 Global St, Chicago, IL", industry: "Manufacturing", revenue: 25000000, employees: 1200, status: "active"},
+        {id: 4, name: "StartUp LLC", contact: "Emily Davis", email: "emily@startup.com", phone: "+1-555-4000", address: "321 Innovation Dr, Austin, TX", industry: "Technology", revenue: 500000, employees: 15, status: "prospect"},
+        {id: 5, name: "Enterprise Co", contact: "David Wilson", email: "david@enterprise.com", phone: "+1-555-5000", address: "654 Enterprise Way, Boston, MA", industry: "Consulting", revenue: 8000000, employees: 350, status: "active"},
+        {id: 6, name: "Small Business", contact: "Lisa Brown", email: "lisa@smallbiz.com", phone: "+1-555-6000", address: "987 Main St, Denver, CO", industry: "Retail", revenue: 750000, employees: 25, status: "active"},
+        {id: 7, name: "Manufacturing Ltd", contact: "Robert Taylor", email: "robert@mfg.com", phone: "+1-555-7000", address: "147 Factory Rd, Detroit, MI", industry: "Manufacturing", revenue: 15000000, employees: 800, status: "inactive"}
+    ],
+    
+    // Master-Detail Data Sets
+    companies: masterDetailData.companies,
+    departments: masterDetailData.departments,
+    company_employees: masterDetailData.employees
+};
+
+// Default sample data (backward compatibility)
+const sampleData = sampleDataSets.products;
 
 // Global grid configurations
 let currentBuilderConfig = {};
@@ -564,6 +681,240 @@ function initializeEventGrid() {
 }
 
 
+
+/**
+ * Change Sample Data Set
+ */
+function changeSampleData() {
+    const selectedDataSet = $('#sampleDataSet').val();
+    const currentData = sampleDataSets[selectedDataSet];
+    
+    // Check if grid exists
+    const gridElement = $("#builderGrid");
+    if (!gridElement.length || !gridElement[0].grid) {
+        console.warn("Builder grid not initialized yet");
+        return;
+    }
+    
+    // Update grid data
+    gridElement.jqGrid('clearGridData');
+    
+    // Add new data
+    for (let i = 0; i < currentData.length; i++) {
+        gridElement.jqGrid('addRowData', i + 1, currentData[i]);
+    }
+    
+    // Update column model based on data type
+    updateColumnsForDataSet(selectedDataSet);
+    
+    // Refresh the grid
+    gridElement.trigger('reloadGrid');
+    
+    // Update generated code
+    updateGeneratedCode();
+}
+
+/**
+ * Update columns based on selected data set
+ */
+function updateColumnsForDataSet(dataSet) {
+    const gridElement = $("#builderGrid");
+    let colModel = [];
+    
+    switch (dataSet) {
+        case 'products':
+            colModel = [
+                {name: 'id', index: 'id', width: 60, key: true, hidden: true},
+                {name: 'name', index: 'name', width: 200, editable: true},
+                {name: 'price', index: 'price', width: 100, align: 'right', formatter: 'currency', formatoptions: {prefix: '$'}},
+                {name: 'stock', index: 'stock', width: 80, align: 'center'},
+                {name: 'category', index: 'category', width: 120},
+                {name: 'brand', index: 'brand', width: 120},
+                {name: 'rating', index: 'rating', width: 80, align: 'center', formatter: 'number', formatoptions: {decimalPlaces: 1}},
+                {name: 'status', index: 'status', width: 100, align: 'center'}
+            ];
+            break;
+        case 'employees':
+            colModel = [
+                {name: 'id', index: 'id', width: 60, key: true, hidden: true},
+                {name: 'name', index: 'name', width: 150, editable: true},
+                {name: 'position', index: 'position', width: 150},
+                {name: 'department', index: 'department', width: 120},
+                {name: 'salary', index: 'salary', width: 100, align: 'right', formatter: 'currency', formatoptions: {prefix: '$'}},
+                {name: 'hire_date', index: 'hire_date', width: 100, formatter: 'date', formatoptions: {srcformat: 'Y-m-d', newformat: 'm/d/Y'}},
+                {name: 'status', index: 'status', width: 100, align: 'center'},
+                {name: 'experience', index: 'experience', width: 80, align: 'center', formatter: function(cellvalue) { return cellvalue + ' yrs'; }}
+            ];
+            break;
+        case 'orders':
+            colModel = [
+                {name: 'id', index: 'id', width: 80, key: true},
+                {name: 'customer', index: 'customer', width: 150},
+                {name: 'amount', index: 'amount', width: 100, align: 'right', formatter: 'currency', formatoptions: {prefix: '$'}},
+                {name: 'status', index: 'status', width: 100, align: 'center'},
+                {name: 'order_date', index: 'order_date', width: 100, formatter: 'date', formatoptions: {srcformat: 'Y-m-d', newformat: 'm/d/Y'}},
+                {name: 'priority', index: 'priority', width: 80, align: 'center'},
+                {name: 'sales_rep', index: 'sales_rep', width: 120},
+                {name: 'region', index: 'region', width: 120}
+            ];
+            break;
+        case 'customers':
+            colModel = [
+                {name: 'id', index: 'id', width: 60, key: true, hidden: true},
+                {name: 'name', index: 'name', width: 180, editable: true},
+                {name: 'contact', index: 'contact', width: 120},
+                {name: 'industry', index: 'industry', width: 120},
+                {name: 'revenue', index: 'revenue', width: 120, align: 'right', formatter: 'currency', formatoptions: {prefix: '$'}},
+                {name: 'employees', index: 'employees', width: 80, align: 'center', formatter: 'integer'},
+                {name: 'status', index: 'status', width: 100, align: 'center'}
+            ];
+            break;
+        case 'companies':
+            colModel = [
+                {name: 'id', index: 'id', width: 60, key: true, hidden: true},
+                {name: 'name', index: 'name', width: 180, editable: true},
+                {name: 'industry', index: 'industry', width: 120},
+                {name: 'founded', index: 'founded', width: 80, align: 'center'},
+                {name: 'headquarters', index: 'headquarters', width: 150},
+                {name: 'revenue', index: 'revenue', width: 120, align: 'right', formatter: 'currency', formatoptions: {prefix: '$'}},
+                {name: 'employees', index: 'employees', width: 80, align: 'center', formatter: 'integer'},
+                {name: 'status', index: 'status', width: 100, align: 'center'}
+            ];
+            break;
+        case 'departments':
+            colModel = [
+                {name: 'id', index: 'id', width: 60, key: true, hidden: true},
+                {name: 'company_id', index: 'company_id', width: 80, align: 'center', hidden: true},
+                {name: 'name', index: 'name', width: 150, editable: true},
+                {name: 'manager', index: 'manager', width: 140},
+                {name: 'budget', index: 'budget', width: 120, align: 'right', formatter: 'currency', formatoptions: {prefix: '$'}},
+                {name: 'employees', index: 'employees', width: 80, align: 'center', formatter: 'integer'},
+                {name: 'location', index: 'location', width: 130}
+            ];
+            break;
+        case 'company_employees':
+            colModel = [
+                {name: 'id', index: 'id', width: 60, key: true, hidden: true},
+                {name: 'department_id', index: 'department_id', width: 80, align: 'center', hidden: true},
+                {name: 'name', index: 'name', width: 150, editable: true},
+                {name: 'position', index: 'position', width: 160},
+                {name: 'salary', index: 'salary', width: 100, align: 'right', formatter: 'currency', formatoptions: {prefix: '$'}},
+                {name: 'hire_date', index: 'hire_date', width: 100, formatter: 'date', formatoptions: {srcformat: 'Y-m-d', newformat: 'm/d/Y'}},
+                {name: 'email', index: 'email', width: 180},
+                {name: 'phone', index: 'phone', width: 120}
+            ];
+            break;
+    }
+    
+    // Recreate the grid with new column model
+    gridElement.jqGrid('GridUnload');
+    
+    // Base grid configuration
+    const gridConfig = {
+        datatype: "local",
+        data: sampleDataSets[dataSet],
+        colModel: colModel,
+        pager: "#builderPager",
+        rowNum: 25,
+        sortname: 'id',
+        sortorder: "asc",
+        viewrecords: true,
+        height: 350,
+        autowidth: true,
+        caption: "Sample Grid - " + dataSet.charAt(0).toUpperCase() + dataSet.slice(1),
+        multiselect: true,
+        rownumbers: true
+    };
+    
+    // Add SubGrid configuration if enabled
+    if ($('#enableSubGrid').is(':checked') && (dataSet === 'companies' || dataSet === 'departments')) {
+        gridConfig.subGrid = true;
+        gridConfig.subGridRowExpanded = function(subgrid_id, row_id) {
+            showSubGrid(subgrid_id, row_id, dataSet);
+        };
+    }
+    
+    gridElement.jqGrid(gridConfig);
+}
+
+/**
+ * Toggle SubGrid functionality
+ */
+function toggleSubGrid() {
+    const selectedDataSet = $('#sampleDataSet').val();
+    updateColumnsForDataSet(selectedDataSet);
+}
+
+/**
+ * Show SubGrid for master-detail relationships
+ */
+function showSubGrid(subgrid_id, row_id, parentDataSet) {
+    const subgrid_table_id = subgrid_id + "_t";
+    const subgrid_pager_id = subgrid_id + "_p";
+    
+    // Create sub-grid HTML
+    $("#" + subgrid_id).html(`
+        <table id="${subgrid_table_id}"></table>
+        <div id="${subgrid_pager_id}"></div>
+    `);
+    
+    let subGridData = [];
+    let subGridColModel = [];
+    let subGridCaption = "";
+    
+    if (parentDataSet === 'companies') {
+        // Show departments for the selected company
+        subGridData = masterDetailData.departments.filter(dept => dept.company_id == row_id);
+        subGridColModel = [
+            {name: 'id', index: 'id', width: 60, key: true, hidden: true},
+            {name: 'name', index: 'name', width: 150},
+            {name: 'manager', index: 'manager', width: 140},
+            {name: 'budget', index: 'budget', width: 120, align: 'right', formatter: 'currency', formatoptions: {prefix: '$'}},
+            {name: 'employees', index: 'employees', width: 80, align: 'center', formatter: 'integer'},
+            {name: 'location', index: 'location', width: 130}
+        ];
+        subGridCaption = "Company Departments";
+    } else if (parentDataSet === 'departments') {
+        // Show employees for the selected department
+        subGridData = masterDetailData.employees.filter(emp => emp.department_id == row_id);
+        subGridColModel = [
+            {name: 'id', index: 'id', width: 60, key: true, hidden: true},
+            {name: 'name', index: 'name', width: 150},
+            {name: 'position', index: 'position', width: 160},
+            {name: 'salary', index: 'salary', width: 100, align: 'right', formatter: 'currency', formatoptions: {prefix: '$'}},
+            {name: 'hire_date', index: 'hire_date', width: 100, formatter: 'date', formatoptions: {srcformat: 'Y-m-d', newformat: 'm/d/Y'}},
+            {name: 'email', index: 'email', width: 180}
+        ];
+        subGridCaption = "Department Employees";
+    }
+    
+    // Initialize sub-grid
+    $("#" + subgrid_table_id).jqGrid({
+        datatype: "local",
+        data: subGridData,
+        colModel: subGridColModel,
+        pager: "#" + subgrid_pager_id,
+        rowNum: 10,
+        sortname: 'id',
+        sortorder: "asc",
+        viewrecords: true,
+        height: 200,
+        autowidth: true,
+        caption: subGridCaption,
+        // Add nested subgrid for departments -> employees
+        subGrid: parentDataSet === 'companies',
+        subGridRowExpanded: parentDataSet === 'companies' ? function(subgrid_id2, row_id2) {
+            showSubGrid(subgrid_id2, row_id2, 'departments');
+        } : undefined
+    });
+    
+    // Add navigation if there are records
+    if (subGridData.length > 0) {
+        $("#" + subgrid_table_id).jqGrid('navGrid', "#" + subgrid_pager_id, {
+            edit: false, add: false, del: false, search: false, refresh: false
+        });
+    }
+}
 
 /**
  * Update Grid Configuration (for Grid Builder)

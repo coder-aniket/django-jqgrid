@@ -489,6 +489,28 @@
                                 <h6>Data Source</h6>
                                 
                                 <div class="mb-3">
+                                    <label class="form-label">Sample Data Set</label>
+                                    <select id="sampleDataSet" class="form-select form-select-sm" onchange="changeSampleData()">
+                                        <option value="products" selected>Products</option>
+                                        <option value="employees">Employees</option>
+                                        <option value="orders">Orders</option>
+                                        <option value="customers">Customers</option>
+                                        <optgroup label="Master-Detail Examples">
+                                            <option value="companies">Companies (Master)</option>
+                                            <option value="departments">Departments (Child)</option>
+                                            <option value="company_employees">Company Employees (Grand-child)</option>
+                                        </optgroup>
+                                    </select>
+                                    <small class="form-text text-muted">Choose a sample dataset for the grid preview</small>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="enableSubGrid" onchange="toggleSubGrid()">
+                                    <label class="form-check-label" for="enableSubGrid">Enable SubGrid (Master-Detail)</label>
+                                    <small class="form-text text-muted">Shows related records in expandable sub-grids</small>
+                                </div>
+                                
+                                <div class="mb-3">
                                     <label class="form-label">Data Type</label>
                                     <select id="datatype" class="form-select form-select-sm" onchange="updateGridConfig()">
                                         <option value="local" selected>Local Data</option>
