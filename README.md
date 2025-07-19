@@ -360,6 +360,118 @@ window.handleImport = function() {
 };
 ```
 
+## Customization and Extension
+
+Django jqGrid is designed to be highly customizable. Here are some common customization examples:
+
+### Quick Customization Examples
+
+#### 1. Custom Formatters
+```javascript
+// Register a custom status badge formatter
+window.jqGridConfig.formatters.statusBadge = function(cellval, opts) {
+    const statusClasses = {
+        'active': 'badge-success',
+        'pending': 'badge-warning',
+        'inactive': 'badge-danger'
+    };
+    const badgeClass = statusClasses[cellval] || 'badge-info';
+    return `<span class="badge ${badgeClass}">${cellval}</span>`;
+};
+
+// Use in ViewSet
+jqgrid_field_overrides = {
+    'status': {
+        'formatter': 'statusBadge',
+        'align': 'center'
+    }
+}
+```
+
+#### 2. Custom Bulk Actions
+```python
+class ProductViewSet(JqGridConfigMixin, JqGridBulkActionMixin, viewsets.ModelViewSet):
+    # Define custom bulk actions
+    bulk_actions = [
+        {
+            'id': 'apply-discount',
+            'label': 'Apply Discount',
+            'icon': 'fa-percent',
+            'class': 'btn-warning'
+        }
+    ]
+    
+    @action(methods=['post'], detail=False)
+    def bulk_action(self, request):
+        action_id = request.data.get('action_id')
+        if action_id == 'apply-discount':
+            # Custom logic here
+            return Response({'status': 'success'})
+        return super().bulk_action(request)
+```
+
+#### 3. JavaScript Hooks
+```javascript
+// Customize grid behavior using hooks
+window.jqGridConfig.hooks.beforeInitGrid = function(tableInstance) {
+    // Add custom configuration before grid initializes
+    tableInstance.options.customData = { department: 'sales' };
+};
+
+window.jqGridConfig.hooks.afterSubmitBulkUpdate = function(tableInstance, ids, action, scope, response) {
+    // Custom notification after bulk update
+    showCustomNotification('Updated ' + ids.length + ' records');
+};
+```
+
+#### 4. Dynamic Column Configuration
+```python
+class UserAwareProductViewSet(JqGridConfigMixin, viewsets.ModelViewSet):
+    def get_visible_columns(self):
+        """Show different columns based on user permissions"""
+        base_columns = ['id', 'name', 'price']
+        
+        if self.request.user.has_perm('products.view_cost'):
+            base_columns.extend(['cost', 'profit_margin'])
+        
+        if self.request.user.is_staff:
+            base_columns.extend(['supplier', 'internal_notes'])
+        
+        return base_columns
+    
+    def get_jqgrid_config(self, request):
+        self.visible_columns = self.get_visible_columns()
+        return super().get_jqgrid_config(request)
+```
+
+#### 5. Custom Toolbar Buttons
+```javascript
+// Add custom buttons to specific tables
+window.jqGridConfig.customButtons.product = [
+    {
+        id: 'import-csv',
+        label: 'Import CSV',
+        icon: 'fa-file-csv',
+        class: 'btn-success',
+        action: function(tableInstance) {
+            showImportModal(tableInstance);
+        }
+    }
+];
+```
+
+### Complete Customization Guide
+
+For comprehensive customization examples including:
+- Advanced ViewSet customization
+- Custom field types
+- Theme customization
+- Real-time updates
+- Performance optimization
+- Complex real-world examples
+
+See the [**Customization Guide**](CUSTOMIZATION_GUIDE.md).
+
 ## Example Project
 
 The package includes a complete example project demonstrating all features:
@@ -396,6 +508,44 @@ Visit: `http://localhost:8000/`
 - Safari (latest)
 - Edge (latest)
 - Mobile browsers (responsive mode)
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. "jqgrid_tags is not a registered tag library"
+**Solution:**
+- Ensure `django_jqgrid` is in your `INSTALLED_APPS`
+- Restart the Django development server
+- If developing locally, install the package in editable mode: `pip install -e .`
+
+#### 2. Grid not loading data
+**Solution:**
+- Check browser console for JavaScript errors
+- Verify the API endpoint is accessible
+- Ensure DRF permissions allow access
+- Check that the ViewSet URL pattern is correct
+
+#### 3. Bulk operations not working
+**Solution:**
+- Verify `JqGridBulkActionMixin` is included in your ViewSet
+- Check CSRF token is being sent with requests
+- Ensure user has appropriate permissions
+
+#### 4. Custom formatters not displaying
+**Solution:**
+- Register formatters before grid initialization
+- Check formatter function name matches configuration
+- Verify no JavaScript errors in formatter function
+
+#### 5. Performance issues with large datasets
+**Solution:**
+- Use server-side pagination (enabled by default)
+- Add database indexes on frequently sorted/filtered columns
+- Use `select_related()` and `prefetch_related()` in querysets
+- Consider implementing caching for frequently accessed data
+
+For more detailed troubleshooting, see the [Customization Guide](CUSTOMIZATION_GUIDE.md#troubleshooting).
 
 ## Requirements
 
