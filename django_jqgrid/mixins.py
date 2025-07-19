@@ -20,37 +20,38 @@ class JqGridConfigMixin:
 
     # Get configuration from settings or use defaults
     JQGRID_DEFAULT_FIELD_CONFIG = {
-        "UpperCharField": {'stype': 'text', 'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"]},
+        "UpperCharField": {'stype': 'text', 'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"], 'sortable': True},
         "EmailField": {'stype': 'email', 'formatter': 'email',
-                       'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"]},
+                       'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"], 'sortable': True},
         "ImageField": {'stype': 'text', 'formatter': 'image',
-                       'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"]},
+                       'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"], 'sortable': False},
         "FileField": {'stype': 'text', 'formatter': 'file',
-                      'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"]},
+                      'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"], 'sortable': False},
         "URLField": {'stype': 'text', 'formatter': 'link',
-                     'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"]},
+                     'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"], 'sortable': True},
         "PhoneNumberField": {'stype': 'text', 'formatter': 'mobile',
-                             'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"]},
-        'CharField': {'stype': 'text', 'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"]},
-        'TextField': {'stype': 'text', 'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"]},
+                             'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"], 'sortable': True},
+        'CharField': {'stype': 'text', 'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"], 'sortable': True},
+        'TextField': {'stype': 'text', 'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"], 'sortable': True},
         'JSONField': {'stype': 'textarea', 'formatter': 'json',
-                      'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"]},
+                      'search_ops': ["eq", "ne", "cn", "nc", "bw", "bn", "ew", "en"], 'sortable': False},
         'IntegerField': {'stype': 'integer', 'align': 'right', 'formatter': 'integer',
-                         'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"]},
+                         'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"], 'sortable': True},
         'PositiveIntegerField': {'stype': 'integer', 'align': 'right', 'formatter': 'integer',
-                                 'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"]},
+                                 'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"], 'sortable': True},
         'FloatField': {'stype': 'number', 'align': 'right', 'formatter': 'number',
-                       'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"]},
+                       'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"], 'sortable': True},
         'DecimalField': {'stype': 'number', 'align': 'right', 'formatter': 'number',
-                         'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"], 'needs_decimal_places': True},
+                         'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"], 'needs_decimal_places': True, 'sortable': True},
         'BooleanField': {'stype': 'checkbox', 'align': 'center', 'formatter': 'checkbox', 'edittype': 'checkbox',
-                         'editoptions': {"value": "1:0"}, 'search_ops': ["eq", "ne"]},
+                         'editoptions': {"value": "1:0"}, 'search_ops': ["eq", "ne"], 'sortable': False},
         'DateField': {
             'stype': 'date', 'align': 'center', 'formatter': 'date',
             'formatoptions': {"srcformat": "ISO8601Short", "newformat": "Y-m-d"},
             'editoptions': {"dataInit": "initDatepicker", "datepicker": {"dateFormat": "yy-mm-dd"}},
             'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"],
-            'search_init': {"dataInit": "initDatepicker", "datepicker": {"dateFormat": "yy-mm-dd"}}
+            'search_init': {"dataInit": "initDatepicker", "datepicker": {"dateFormat": "yy-mm-dd"}},
+            'sortable': True
         },
         'DateTimeField': {
             'stype': 'datetime-local', 'align': 'center', 'formatter': 'datetimeLocal', 'edittype': 'datetime-local',
@@ -59,9 +60,10 @@ class JqGridConfigMixin:
                             "datetimepicker": {"dateFormat": "yy-mm-dd", "timeFormat": "HH:mm:ss"}},
             'search_ops': ["eq", "ne", "lt", "le", "gt", "ge"],
             'search_init': {"dataInit": "initDatetimepicker",
-                            "datetimepicker": {"dateFormat": "yy-mm-dd", "timeFormat": "HH:mm:ss"}}
+                            "datetimepicker": {"dateFormat": "yy-mm-dd", "timeFormat": "HH:mm:ss"}},
+            'sortable': True
         },
-        'ForeignKey': {'stype': 'text', 'formatter': 'select', 'search_ops': ["eq", "ne"]}
+        'ForeignKey': {'stype': 'text', 'formatter': 'select', 'search_ops': ["eq", "ne"], 'sortable': True}
     }
     FIELD_TYPE_CONFIGS = JQGRID_DEFAULT_FIELD_CONFIG  # Replace with get_setting() if needed
 
@@ -285,7 +287,10 @@ class JqGridConfigMixin:
     def _get_model_metadata(self):
         """Extract metadata from model and serializer"""
         # Get serializer fields
-        serializer = self.serializer_class()
+        serializer_class = self.serializer_class or self.get_serializer_class()
+        if not serializer_class:
+            raise TypeError(f"'{self.__class__.__name__}' must have a `serializer_class` attribute.")
+        serializer = serializer_class()
 
         # Get field lists from viewset or use defaults
         self.visible_columns = getattr(self, 'visible_columns', list(serializer.get_fields().keys()))
@@ -299,7 +304,7 @@ class JqGridConfigMixin:
         self.highlight_rules = getattr(self, 'highlight_rules', {})
 
         # Get model instance for metadata
-        model = getattr(self.serializer_class.Meta, "model", None)
+        model = getattr(serializer_class.Meta, "model", None)
 
         # Extract field titles from model verbose_names
         self.header_titles = getattr(self, 'header_titles', {})
@@ -324,8 +329,9 @@ class JqGridConfigMixin:
 
     def initialize_columns(self):
         """Initialize column model from serializer fields"""
-        serializer_fields = self.serializer_class().get_fields()
-        model = getattr(self.serializer_class.Meta, "model", None)
+        serializer_class = self.serializer_class or self.get_serializer_class()
+        serializer_fields = serializer_class().get_fields()
+        model = getattr(serializer_class.Meta, "model", None)
         form_elements = 0
 
         # Process each visible column
@@ -342,7 +348,7 @@ class JqGridConfigMixin:
                 "editable": True,
                 "required": False,
                 "search": field_name in self.search_fields,
-                "sortable": field_name in self.ordering_fields,
+                "sortable": field_name in self.ordering_fields,  # Default based on ordering_fields
                 "autoResizable": True
             }
 
@@ -423,9 +429,14 @@ class JqGridConfigMixin:
         if 'search_ops' in type_config:
             col_config['search_ops'] = type_config['search_ops']
 
+        # Handle sortable setting from field type - override default if specified
+        if 'sortable' in type_config:
+            # Field type config overrides the default ordering_fields logic
+            col_config['sortable'] = type_config['sortable']
+
         # Apply remaining configuration
         for key, value in type_config.items():
-            if key not in ['search_ops', 'search_init', 'needs_decimal_places']:
+            if key not in ['search_ops', 'search_init', 'needs_decimal_places', 'sortable']:
                 col_config[key] = value
 
         # Special handling for decimal fields
@@ -551,8 +562,8 @@ class JqGridConfigMixin:
 
         # Update with dynamic values
         self.jqgrid_options.update({
-            "url": f"/api/{self.app_label}/{self.model_name}/",  # Add trailing slash
-            "editurl": f"/api/{self.app_label}/{self.model_name}/crud/",  # Add editurl
+            "url": f"/{self.app_label}/api/{self.model_name}/",  # Add trailing slash
+            "editurl": f"/{self.app_label}/api/{self.model_name}/crud/",  # Add editurl
             "colModel": self.colmodel,
             "colNames": self.colnames,
             "sortname": sortname,
@@ -573,17 +584,17 @@ class JqGridConfigMixin:
         # Update prmNames to match first code
         self.jqgrid_options["prmNames"] = {
             "page": "page",
-            "rows": "page_size",  # Changed from 'rows' to 'page_size'
+            "rows": "rows",  # Changed from 'page_size' to 'rows' to match pagination
             "id": self.key_field,
             "order": "sord"
         }
 
         # Update jsonReader to match first code
         self.jqgrid_options["jsonReader"] = {
-            "root": "data.data",
-            "page": "data.page",
-            "total": "data.total_pages",
-            "records": "data.records",
+            "root": "rows",
+            "page": "page",
+            "total": "total",
+            "records": "records",
             "id": self.key_field,
             "repeatitems": False
         }
@@ -666,8 +677,9 @@ class JqGridConfigMixin:
     def _configure_bulk_actions(self):
         """Configure bulk actions"""
         # Define which fields can be bulk updated
-        model = getattr(self.serializer_class.Meta, "model", None)
-        serializer_fields = self.serializer_class().get_fields()
+        serializer_class = self.serializer_class or self.get_serializer_class()
+        model = getattr(serializer_class.Meta, "model", None)
+        serializer_fields = serializer_class().get_fields()
         self.bulk_updateable_fields = getattr(self, 'bulk_updateable_fields', [])
 
         # If no specific fields are defined, auto-generate from column model
@@ -866,7 +878,8 @@ class JqGridBulkActionMixin:
         """
         Get allowed fields for bulk update from serializer (or override via `allowed_bulk_fields`)
         """
-        serializer = self.serializer_class()
+        serializer_class = self.serializer_class or self.get_serializer_class()
+        serializer = serializer_class()
         all_fields = serializer.get_fields()
         editable_fields = [
             name for name, field in all_fields.items()

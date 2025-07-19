@@ -26,6 +26,8 @@ from .grid_config import (
     get_orders_grid_config, get_categories_grid_config
 )
 from .jqgrid_pagination import JqGridPagination
+from django_jqgrid.filters import JqGridFilterBackend
+from django_jqgrid.mixins import JqGridConfigMixin
 
 
 # Template views for displaying jqGrid examples
@@ -248,16 +250,20 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = JqGridPagination  # Use jqGrid-compatible pagination
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [JqGridFilterBackend, DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['active']
     search_fields = ['name', 'description']
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
     
+    # Configure allowed filters for JqGridFilterBackend
+    allowed_filters = ['name', 'description', 'active', 'created_at']
+    
     @action(detail=False, methods=['get'])
     def grid_config(self, request):
         """Return comprehensive grid configuration for jqGrid."""
-        return Response(get_categories_grid_config())
+        config = get_categories_grid_config()
+        return Response(config.get('data', config))
     
     @action(detail=False, methods=['get'])
     def dropdown(self, request):
@@ -534,16 +540,21 @@ class ProductViewSet(viewsets.ModelViewSet):
             return ProductListSerializer
         return ProductSerializer
     
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [JqGridFilterBackend, DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['status', 'category', 'is_featured', 'is_digital']
     search_fields = ['name', 'description', 'sku']
     ordering_fields = ['name', 'price', 'stock_quantity', 'created_at']
     ordering = ['-created_at']
     
+    # Configure allowed filters for JqGridFilterBackend
+    allowed_filters = ['name', 'description', 'sku', 'price', 'stock_quantity', 'status', 
+                      'category', 'is_featured', 'is_digital', 'created_at']
+    
     @action(detail=False, methods=['get'])
     def grid_config(self, request):
         """Return comprehensive grid configuration for products jqGrid."""
-        return Response(get_products_grid_config())
+        config = get_products_grid_config()
+        return Response(config.get('data', config))
     
     @action(detail=False, methods=['get'])
     def dropdown(self, request):
@@ -682,11 +693,12 @@ class ProductViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class CustomerViewSet(viewsets.ModelViewSet):
+class CustomerViewSet(JqGridConfigMixin, viewsets.ModelViewSet):
     """
     ViewSet for Customer model demonstrating user management features.
     """
     queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
     pagination_class = JqGridPagination  # Use jqGrid-compatible pagination
     
     def get_serializer_class(self):
@@ -694,16 +706,27 @@ class CustomerViewSet(viewsets.ModelViewSet):
             return CustomerListSerializer
         return CustomerSerializer
     
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [JqGridFilterBackend, DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['customer_type', 'is_active', 'city', 'state']
     search_fields = ['first_name', 'last_name', 'email', 'phone']
     ordering_fields = ['last_name', 'registration_date', 'credit_limit']
     ordering = ['last_name', 'first_name']
     
+    # Configure allowed filters for JqGridFilterBackend
+    allowed_filters = ['first_name', 'last_name', 'email', 'phone', 'customer_type', 
+                      'is_active', 'city', 'state', 'registration_date', 'credit_limit']
+    
+    # Override jqGrid options to provide the correct URL
+    jqgrid_options_override = {
+        'url': '/examples/api/customers/',
+        'editurl': '/examples/api/customers/crud/'
+    }
+    
     @action(detail=False, methods=['get'])
     def grid_config(self, request):
         """Return comprehensive grid configuration for customers jqGrid."""
-        return Response(get_customers_grid_config())
+        # Use the automatic jqGrid configuration from the mixin
+        return self.jqgrid_config(request)
     
     @action(detail=False, methods=['get'])
     def dropdown(self, request):
@@ -842,16 +865,21 @@ class OrderViewSet(viewsets.ModelViewSet):
             return OrderListSerializer
         return OrderSerializer
     
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [JqGridFilterBackend, DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['status', 'customer']
     search_fields = ['order_number', 'customer__first_name', 'customer__last_name', 'tracking_number']
     ordering_fields = ['order_date', 'total_amount', 'status']
     ordering = ['-order_date']
     
+    # Configure allowed filters for JqGridFilterBackend
+    allowed_filters = ['order_number', 'customer', 'order_date', 'status', 'subtotal', 
+                      'tax_amount', 'shipping_cost', 'total_amount', 'tracking_number']
+    
     @action(detail=False, methods=['get'])
     def grid_config(self, request):
         """Return comprehensive grid configuration for orders jqGrid."""
-        return Response(get_orders_grid_config())
+        config = get_orders_grid_config()
+        return Response(config.get('data', config))
     
     @action(detail=False, methods=['get'])
     def dropdown(self, request):

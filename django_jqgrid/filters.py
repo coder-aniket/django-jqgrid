@@ -152,7 +152,7 @@ class JqGridFilterBackend(BaseFilterBackend):
             if isinstance(field, FloatField):
                 return float(value)
             if isinstance(field, BooleanField):
-                return value.lower() in ['true', '1', 'yes']
+                return value.lower() in ['true', '1', 'yes', 'on']
             if isinstance(field, (DateField, DateTimeField)):
                 from django.utils.dateparse import parse_date, parse_datetime
                 return parse_datetime(value) or parse_date(value)

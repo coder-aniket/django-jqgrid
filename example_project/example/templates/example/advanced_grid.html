@@ -394,13 +394,8 @@ function loadGridConfiguration() {
         type: 'GET',
         dataType: 'json',
         success: function(response) {
-            if (response.status) {
-                gridConfig = response.data;
-                initializeAdvancedGrid();
-            } else {
-                console.error('Failed to load grid configuration:', response.message);
-                showAlert('Error loading grid configuration', 'danger');
-            }
+            gridConfig = response;
+            initializeAdvancedGrid();
         },
         error: function(xhr, status, error) {
             console.error('Grid configuration request failed:', error);
@@ -543,18 +538,37 @@ function getBulkUpdateFieldHtml(col) {
 }
 
 function setupConditionalFormatting() {
+    if (!gridConfig || !gridConfig.conditional_formatting) {
+        return;
+    }
+
+    // Create a dedicated <style> tag for our dynamic rules
+    let styleSheet = document.getElementById('jqgrid-conditional-styles');
+    if (!styleSheet) {
+        styleSheet = document.createElement('style');
+        styleSheet.id = 'jqgrid-conditional-styles';
+        styleSheet.type = 'text/css';
+        document.head.appendChild(styleSheet);
+    }
+
     var formatting = gridConfig.conditional_formatting;
     
     Object.keys(formatting).forEach(function(fieldName) {
         var rules = formatting[fieldName];
         Object.keys(rules).forEach(function(value) {
             var style = rules[value];
-            var cssClass = `.conditional-row-${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            // Sanitize the value to create a valid CSS class name
+            var sanitizedValue = String(value).replace(/[^a-zA-Z0-9-_]/g, '_');
+            var cssClass = `.conditional-row-${sanitizedValue}`;
             
-            // Add CSS rule dynamically
-            var styleSheet = document.styleSheets[0];
+            // Add the CSS rule to our dedicated stylesheet
             var rule = `${cssClass} { background-color: ${style.background_color} !important; color: ${style.color} !important; }`;
-            styleSheet.insertRule(rule, styleSheet.cssRules.length);
+            try {
+                // Use the sheet property of the style element
+                styleSheet.sheet.insertRule(rule, styleSheet.sheet.cssRules.length);
+            } catch (e) {
+                console.error("Failed to insert CSS rule:", rule, e);
+            }
         });
     });
 }
@@ -629,19 +643,21 @@ function updateVisibleColumns() {
 }
 
 function applyConditionalFormatting() {
-    if (!gridConfig.conditional_formatting) return;
-    
+    if (!gridConfig || !gridConfig.conditional_formatting) return;
+
     var grid = $('#{{ grid_id }}');
     var data = grid.jqGrid('getRowData');
-    
+
     data.forEach(function(row) {
         Object.keys(gridConfig.conditional_formatting).forEach(function(fieldName) {
             var value = row[fieldName];
             var rules = gridConfig.conditional_formatting[fieldName];
-            
-            if (rules[value]) {
+
+            if (rules && rules[value]) {
                 var rowElement = $(`#${row.id}`);
-                rowElement.addClass(`conditional-row-${value.replace(/[^a-zA-Z0-9]/g, '_')}`);
+                // Sanitize the value to match the CSS class name
+                var sanitizedValue = String(value).replace(/[^a-zA-Z0-9-_]/g, '_');
+                rowElement.addClass(`conditional-row-${sanitizedValue}`);
             }
         });
     });

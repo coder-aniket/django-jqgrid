@@ -172,3 +172,4 @@ publish.sh
 /.pypi_tokens.conf
 .claude/
 example_env/
+/.claude/
